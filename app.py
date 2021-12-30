@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request
-from train_switch.train_switch import TrainSwitch
+from train_switch.train_switch import RPiGPIOTrainSwitch
 
 NUM_SWITCHES = 2
 
 pins = [7, 11, 12, 13, 15, 16, 18, 22]
 
 train_switches = {
-	i: TrainSwitch(switch=i, pin=pins[i], verbose=True) 
+	i: RPiGPIOTrainSwitch(switch=i, pin=pins[i], verbose=True) 
 	for i in range(NUM_SWITCHES)
 }
 
