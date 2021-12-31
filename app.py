@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from RPi import GPIO
 from train_switch.train_switch import (
-	ManualTrainSwitch
+	ManualTrainSwitch, AngularServoTrainSwitch
 )
 
 NUM_SWITCHES = 2  # match number of button sets on html page
@@ -14,7 +14,7 @@ for each pin# in all the possible pin #'s:
 	stop if we reach the NUM_SWITCHES
 """
 train_switches = {
-	i: ManualTrainSwitch(switch=i, pin=pins[i], verbose=True) 
+	i: AngularServoTrainSwitch(switch=i, pin=pins[i], verbose=True) 
 	for i in range(NUM_SWITCHES)
 }
 
@@ -35,6 +35,3 @@ if __name__ == '__main__':
 	# close connections
 	for _, train_switch in train_switches.items():
 		train_switch.close()
-
-	# final cleanup
-	GPIO.cleanup()
