@@ -1,20 +1,12 @@
 from flask import Flask, render_template, request
-from RPi import GPIO
-from train_switch.train_switch import (
-	ManualTrainSwitch, AngularServoTrainSwitch
-)
+from train_switch.train_switch import GPIOZeroManualTrainSwitch
 
 NUM_SWITCHES = 2  # match number of button sets on html page
 
 pins = [7, 11, 12, 13, 15, 16, 18, 22]
 
-"""
-for each pin# in all the possible pin #'s:
-	make a train switch on this pin#
-	stop if we reach the NUM_SWITCHES
-"""
 train_switches = {
-	i: AngularServoTrainSwitch(switch=i, pin=pins[i], verbose=True) 
+	i: GPIOZeroManualTrainSwitch(switch=i, pin=pins[i], verbose=True) 
 	for i in range(NUM_SWITCHES)
 }
 
