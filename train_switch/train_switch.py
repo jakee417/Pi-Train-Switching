@@ -1,19 +1,15 @@
-import RPi.GPIO as GPIO
-import time
+from RPi import GPIO
 from gpiozero import AngularServo
+import time
 from abc import abstractmethod
 
-# Minimums and maximums for AngularServo
-MIN_ANGLE = -42
-MAX_ANGLE = 44
-
 PULSE = 50  # default pulse value, 50Hz
-SLEEP = 0.5  # default sleep time to prevent jitter
+SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 
 # Map an action to an angle
 action_to_angle = {
-    'left': 0.,
-    'right': 90.
+    'left': 0.0,
+    'right': 90.0
 }
 
 
@@ -26,8 +22,8 @@ class BaseTrainSwitch:
         """ Abstract base class for a train switch.
 
         Args:
-            switch: number for a physical switch on a train layout.
-            pin: number for a gpio pin on a raspberry pi.
+            switch: Unique number for a physical switch on a train layout.
+            pin: Unique number for a gpio pin on a raspberry pi.
             verbose: Either True or False. Verbosity of object.
         """
         self.switch = switch
@@ -47,6 +43,10 @@ class BaseTrainSwitch:
     
     def action(self, action: str) -> None:
         """ Execute an action on a train switch.
+
+        If an ordered action is the same as the previous state, then do nothing.
+        Otherwise, convert the action to an angle and perform an update to the
+        state of the train switch.
 
         Args:
             action: One of `left` or `right`
@@ -74,18 +74,18 @@ class BaseTrainSwitch:
             if self.verbose:
                 print(
                     f"{self}: \n" +
-                    f"++++ initial state: {self.state}" +
+                    f"++++ initial state: {self.state} \n" +
                     f"++++ action: {action} \n" +
                     f"++++ angle: {angle})"
                 )
 
-            # remember new state
+            # remember new state to check against future actions
             self.state = action
 
         except Exception as ex:
             print(
                 f"{self}: \n" +
-                f"++++ exception raised: {e}"
+                f"++++ exception raised: {ex}"
             )
 
     @abstractmethod
@@ -100,15 +100,17 @@ class BaseTrainSwitch:
             print(f"{self} is closed...")
         
 
-class RPiGPIOTrainSwitch(BaseTrainSwitch):
+class ManualTrainSwitch(BaseTrainSwitch):
     def __init__(self, **kwargs) -> None:
-        """ Train switch wrapping the RPi.GPIO class
+        """ Train switch wrapping the RPi.GPIO class for manual switches.
         
+        We followed a great demo from youtuber `ExplainingComputers` to 
+        implement our first Rasperry Pi GPIO Train Switch.
+
         References:
             https://www.explainingcomputers.com/pi_servos_video.html
-
         """
-        super(RPiGPIOTrainSwitch, self).__init__(**kwargs)
+        super(ManualTrainSwitch, self).__init__(**kwargs)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.pin, GPIO.OUT)
         self.servo = GPIO.PWM(self.pin, PULSE)
@@ -116,27 +118,26 @@ class RPiGPIOTrainSwitch(BaseTrainSwitch):
 
     @staticmethod
     def angle_to_duty(angle: float):
-        """Map a angle to a duty cycle"""
+        """Map a angle to a duty cycle
+        
+        Notes:
+            0 degrees: 2% duty cycle
+            180 degrees: 12% duty cycle
+        """
         return 2 + angle / 18
 
     def _action(self, angle: int) -> None:
         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
-        time.sleep(SLEEP)
-        self.servo.ChangeDutyCycle(0)
+        time.sleep(SLEEP)  # wait to stop
+        self.servo.ChangeDutyCycle(0)  # stop
 
     def _close(self) -> None:
         """Close a connection with a switch."""
         self.servo.stop()
-        GPIO.cleanup()
 
 
 class AngularServoTrainSwitch(BaseTrainSwitch):
-    def __init__(
-        self,
-        min_angle: float = MIN_angle,
-        max_angle: float = MAX_angle,
-        initial_angle: float = 0.,
-        **kwargs) -> None:
+    def __init__(self, **kwargs) -> None:
         """ Train switch wrapping the AngularServo class
 
         Args:
@@ -149,25 +150,24 @@ class AngularServoTrainSwitch(BaseTrainSwitch):
             https://gpiozero.readthedocs.io/en/stable/recipes.html#servo
         """
         super(AngularServoTrainSwitch, self).__init__(**kwargs)
-
-        self.initial_angle = intial_angle
-        self.min_angle = min_angle
-        self.max_angle = max_angle
-
         self.servo = AngularServo(
-            pin=self.pin,
-            initial_angle=self.initial_angle,
-            min_angle=self.min_angle,
-            MAX_ANGLE=self.max_angle,
+            pin="BOARD" + str(self.pin),
+            frame_width=1/PULSE,  # 50Hz corresponds to 20/1000s default
+            min_pulse_width=1/1000,  # corresponds to 2% duty cycle
+            max_pulse_width=2/1000  # correponds to 10% duty cycle
         )
 
     def _action(self, angle: int) -> None:
         self.servo.angle = angle
-        time.sleep(SLEEP)
 
     def _close(self) -> None:
         self.servo.close()
 
 class RelayTrainSwitch(BaseTrainSwitch):
-    """Train switch using a Modular Relay"""
+    """Train switch using a Modular Relay
+    
+    References:
+        https://www.electronicshub.org/control-a-relay-using-raspberry-pi/
+    
+    """
     pass
