@@ -1,39 +1,65 @@
+<!DOCTYPE html>
 <html>
 
 <head>
-    <link rel="stylesheet" href='/static/style.css' />
+    <link rel="stylesheet" href='/static/style.css'/>
 </head>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <body>
-    <h1>Trains!</h1>
-    Switch 0:
+    <h1>Trains Switches</h1>
+    <hr />
+    <p>Switch 0 (pin 7):</p>
     <table style="width:100%">
         <tr>
-            <form action="{{ url_for("index")}}" method="post">
-                <input type="submit" value="turn" name="0">
+            <form action="{{url_for("index")}}" method="post">
+                <input type="submit" value="Turn" name="0">
             </form>
         </tr>
         <tr>
-            <form action="{{ url_for("index")}}" method="post">
-                <input type="submit" value="straight" name="0">
+            <form action="{{url_for("index")}}" method="post">
+                <input type="submit" value="Straight" name="0">
             </form>
         </tr>
     </table>
+
     <BR>
+    <hr />
     <BR>
-    Switch 1:
+    <p>Switch 1 (pin 11):</p>
     <table style="width:100%">
         <tr>
-            <form action="{{ url_for("index")}}" method="post">
-                <input type="submit" value="turn" name="1">
+            <form action="{{url_for("index")}}" method="post">
+                <input type="submit" value="Turn" name="1">
             </form>
         </tr>
         <tr>
-            <form action="{{ url_for("index")}}" method="post">
-                <input type="submit" value="straight" name="1">
+            <form action="{{url_for("index")}}" method="post">
+                <input type="submit" value="Straight" name="1">
             </form>
         </tr>
     </table>
+
+    <BR>
+        <hr />
+        <BR>
+        <p>Switch 2 (pin 8 & 10):</p>
+        <table style="width:100%">
+            <tr>
+                <form action="{{url_for("index")}}" method="post">
+                    <input type="submit" value="Turn" name="2">
+                </form>
+            </tr>
+            <tr>
+                <form action="{{url_for("index")}}" method="post">
+                    <input type="submit" value="Straight" name="2">
+                </form>
+            </tr>
+        </table>
+
+
+
 </body>
 
 </html>

@@ -2,36 +2,32 @@
 
 import time
 from abc import abstractmethod
+from typing import Union, Tuple
 
 
 PULSE = 50  # default pulse value, 50Hz
 SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
-
-# Map an action to an angle
-action_to_angle = {
-    'turn': 100.0,
-    'straight': 180.0
-}
+BLINK = 0.25 # default time to wait between blinking
 
 
 class BaseTrainSwitch:
     def __init__(
         self,
         switch: int,
-        pin: int,
+        pin: Union[int, Tuple[int, int]],
         verbose: bool = False) -> None:
         """ Abstract base class for a train switch.
 
         Args:
             switch: Unique number for a physical switch on a train layout.
             pin: Unique number for a gpio pin on a raspberry pi.
+                Alternatively a tuple of integers for multi-pin devices.
             verbose: Either True or False. Verbosity of object.
         """
         self.switch = switch
         self.pin = pin
         self.verbose = verbose
         self.state = None
-        self.servo = None
         if self.verbose:
             print(f"{self} is started...")
 
@@ -42,18 +38,34 @@ class BaseTrainSwitch:
         self, 
         initial_state: str, 
         action: str, 
-        angle: object) -> None:
+        update: object) -> None:
         """Prints update message"""
         if self.verbose:
             print(
                 f"{self}: \n" +
                 f"++++ initial state: {initial_state} \n" +
                 f"++++ action: {action} \n" +
-                f"++++ angle update: {angle}"
+                f"++++ update: {update}"
             )
 
+    @staticmethod
+    def action_to_angle(action: str) -> int:
+        """Maps an action to a legal action."""
+        mapping = {
+        'Turn': 100.0,
+        'Straight': 180.0
+        }
+        angle = mapping.get(action, None)
+
+        if isinstance(angle, type(None)):
+            raise ValueError(
+                "Invalid command to train switch." + 
+                f"\n Found action: {action}"
+            )
+        return angle
+
     @abstractmethod
-    def _action(self, angle: int) -> None:
+    def _action(self, action: str) -> object:
         pass
     
     def action(self, action: str) -> None:
@@ -70,19 +82,10 @@ class BaseTrainSwitch:
             self.print_update(self.state, action, 'skipped')
             return
 
-        # convert the action to an angle value. ensure it is not `None`.
-        angle = action_to_angle.get(action)
-
-        if isinstance(angle, type(None)):
-            raise ValueError(
-                "Invalid command to train switch." + 
-                f"\n Found action: {action}"
-            )
-
         # complete derived class's work
         try:
-            self._action(angle)
-            self.print_update(self.state, action, angle)
+            update = self._action(action)
+            self.print_update(self.state, action, update)
 
             # remember new state to check against future actions
             self.state = action
@@ -138,10 +141,12 @@ class GPIOManualTrainSwitch(BaseTrainSwitch):
         """
         return 2 + angle / 18
 
-    def _action(self, angle: int) -> None:
+    def _action(self, action: str) -> object:
+        angle = self.action_to_angle(action)
         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
         time.sleep(SLEEP)  # wait to stop
         self.servo.ChangeDutyCycle(0)  # stop
+        return angle
 
     def _close(self) -> None:
         """Close a connection with a switch."""
@@ -151,7 +156,7 @@ class GPIOManualTrainSwitch(BaseTrainSwitch):
 class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
     def __init__(
         self,
-        min_angle: float = 0.,
+        min_angle: float = 100.,
         max_angle: float = 180.,
         initial_angle: float = None,
         **kwargs) -> None:
@@ -176,7 +181,7 @@ class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
         from gpiozero import AngularServo
         super(GPIOZeroManualTrainSwitch, self).__init__(**kwargs)
 
-        # AngularServo API expects "BOARD" in front of the pin #
+        # gpiozero API expects "BOARD" in front of the pin #
         self.pin_name = "BOARD" + str(self.pin)
         self.min_angle = min_angle
         self.max_angle = max_angle
@@ -203,23 +208,99 @@ class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
             pin_factory=PiGPIOFactory()
         )
 
-    def _action(self, angle: int) -> None:
+    def _action(self, action: str) -> object:
+        angle = self.action_to_angle(action)
         self.servo.angle = angle
+        return angle
 
     def _close(self) -> None:
         self.servo.close()
 
 class RelayTrainSwitch(BaseTrainSwitch):
-    """ Relay switch wrapping the gpiozero class for remote train switches.
-    
-    References:
-        https://www.electronicshub.org/control-a-relay-using-raspberry-pi/
+    def __init__(self, **kwargs) -> None:
+        """ Relay switch wrapping the gpiozero class for remote train switches.
+        
+        References:
+            https://www.electronicshub.org/control-a-relay-using-raspberry-pi/
 
-    Notes:
-        The default pin factory for this device is:
-        `gpio.zero.pins.pigpio.PiGPIOFactory`
-        and cannot be mixed with other pin factories:
-        https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
-    
-    """
-    pass
+        Notes:
+            The default pin factory for this device is:
+            `gpio.zero.pins.pigpio.PiGPIOFactory`
+            and cannot be mixed with other pin factories:
+            https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
+        
+        """
+        from gpiozero.pins.pigpio import PiGPIOFactory
+        from gpiozero import DigitalOutputDevice
+        super(RelayTrainSwitch, self).__init__(**kwargs)
+        
+        if not isinstance(self.pin, tuple):
+            raise ValueError(f"Expecting multiple pins. Found {self.pin}")
+
+        if len(self.pin) != 2:
+            raise ValueError(f"Expecting two pins. Found {self.pin}")
+
+        # when active_high=False, on() seems to pass voltage and off() 
+        # seems to pass no voltage.
+        # We initially set to False.
+        self.yg_relay = DigitalOutputDevice(
+            pin="BOARD" + str(self.pin[0]),
+            active_high=False,
+            initial_value=False,
+            pin_factory=PiGPIOFactory()
+        )
+        self.br_relay = DigitalOutputDevice(
+            pin="BOARD" + str(self.pin[1]),
+            active_high=False,
+            initial_value=False,
+            pin_factory=PiGPIOFactory()
+        )
+        self.print_states()
+
+    def print_states(self):
+        print(f"yg value: {self.yg_relay.value}")
+        print(f"br value: {self.br_relay.value}")
+
+    @staticmethod
+    def action_to_conf(action: str):
+        """ Map an action to a relay configuration"""
+        mapping = {
+            'Turn': 'br',
+            'Straight': 'yg',
+        }
+
+        conf = mapping.get(action, None)
+
+        if isinstance(conf, type(None)):
+            raise ValueError(
+                "Invalid command to train switch." + 
+                f"\n Found action: {action}"
+            )
+
+        return conf
+
+    def _action(self, action: str) -> object:
+        # we only want to blink one pair at a time
+        # otherwise, leave both relays as low - sending no action
+        conf = self.action_to_conf(action)
+
+        # Now we `BLINK` a single device once for 1/2 second.
+        if conf == 'br':
+            self.br_relay.off()
+            self.br_relay.on()
+            self.print_states()
+            time.sleep(BLINK)
+            self.br_relay.off()
+
+        if conf == 'yg':
+            self.yg_relay.off()
+            self.yg_relay.on()
+            self.print_states()
+            time.sleep(BLINK)
+            self.yg_relay.off()
+        self.print_states()
+        return conf
+
+    def _close(self) -> None:
+        self.yg_relay.close()
+        self.br_relay.close()
