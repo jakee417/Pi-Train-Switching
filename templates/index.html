@@ -1,65 +1,88 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
     <link rel="stylesheet" href='/static/style.css'/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
-    <h1>Trains Switches</h1>
+
+    <h1>{{ title }}</h1>
     <hr />
-    <p>Switch 0 (pin 7):</p>
+    <p>{{ name_0 }}:</p>
     <table style="width:100%">
         <tr>
             <form action="{{url_for("index")}}" method="post">
-                <input type="submit" value="Turn" name="0">
+                {% if status_0 == "Turn": %}
+                <input type="submit" value="Turn" name="0" class="clicked">
+                {% else %}
+                <input type="submit" value="Turn" name="0" class="unclicked">
+                {% endif %}
             </form>
         </tr>
         <tr>
             <form action="{{url_for("index")}}" method="post">
-                <input type="submit" value="Straight" name="0">
+                {% if status_0 == "Straight": %}
+                <input type="submit" value="Straight" name="0" class="clicked">
+                {% else %}
+                <input type="submit" value="Straight" name="0" class="unclicked">
+                {% endif %}
             </form>
         </tr>
     </table>
 
-    <BR>
     <hr />
-    <BR>
-    <p>Switch 1 (pin 11):</p>
+
+    <p>{{ name_1 }}:</p>
     <table style="width:100%">
         <tr>
             <form action="{{url_for("index")}}" method="post">
-                <input type="submit" value="Turn" name="1">
+                {% if status_1 == "Turn": %}
+                <input type="submit" value="Turn" name="1" class="clicked">
+                {% else %}
+                <input type="submit" value="Turn" name="1" class="unclicked">
+                {% endif %}
             </form>
         </tr>
         <tr>
             <form action="{{url_for("index")}}" method="post">
-                <input type="submit" value="Straight" name="1">
+                {% if status_1 == "Straight": %}
+                <input type="submit" value="Straight" name="1" class="clicked">
+                {% else %}
+                <input type="submit" value="Straight" name="1" class="unclicked">
+                {% endif %}
             </form>
         </tr>
     </table>
 
-    <BR>
-        <hr />
-        <BR>
-        <p>Switch 2 (pin 8 & 10):</p>
-        <table style="width:100%">
-            <tr>
-                <form action="{{url_for("index")}}" method="post">
-                    <input type="submit" value="Turn" name="2">
-                </form>
-            </tr>
-            <tr>
-                <form action="{{url_for("index")}}" method="post">
-                    <input type="submit" value="Straight" name="2">
-                </form>
-            </tr>
-        </table>
+    <hr />
 
+    <p>{{ name_2 }}:</p>
+    <table style="width:100%">
+        <tr>
+            <form action="{{url_for("index")}}" method="post">
+                {% if status_2 == "Turn": %}
+                <input type="submit" value="Turn" name="2" class="clicked">
+                {% else %}
+                <input type="submit" value="Turn" name="2" class="unclicked">
+                {% endif %}
+            </form>
+        </tr>
+        <tr>
+            <form action="{{url_for("index")}}" method="post">
+                {% if status_2 == "Straight": %}
+                <input type="submit" value="Straight" name="2" class="clicked">
+                {% else %}
+                <input type="submit" value="Straight" name="2" class="unclicked">
+                {% endif %}
+            </form>
+        </tr>
+    </table>
 
 
 </body>
-
 </html>

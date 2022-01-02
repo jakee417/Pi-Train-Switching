@@ -2,3 +2,13 @@ body {
 	background: beige;
 	color: black;
 }
+
+input.unclicked {
+	background: rgb(193, 220, 230);
+	color: rgba(0, 0, 0, 0.308);
+}
+
+input.clicked {
+	background: darkblue;
+	color: white;
+}

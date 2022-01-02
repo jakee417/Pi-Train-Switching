@@ -24,15 +24,14 @@ class BaseTrainSwitch:
                 Alternatively a tuple of integers for multi-pin devices.
             verbose: Either True or False. Verbosity of object.
         """
+        self.__name__ = 'Base Train Switch'
         self.switch = switch
         self.pin = pin
         self.verbose = verbose
         self.state = None
-        if self.verbose:
-            print(f"{self} is started...")
 
     def __repr__(self):
-        return f"switch: {self.switch} @ pin: {self.pin}"
+        return f"{self.__name__}: {self.switch} @ Pin: {self.pin}"
 
     def print_update(
         self, 
@@ -108,52 +107,53 @@ class BaseTrainSwitch:
             print(f"{self} is closed...")
         
 
-class GPIOManualTrainSwitch(BaseTrainSwitch):
-    def __init__(self, **kwargs) -> None:
-        """ Servo class wrapping the RPi.GPIO class for manual train switches.
+# TODO: Not using this for now...
+# class GPIOManualTrainSwitch(BaseTrainSwitch):
+#     def __init__(self, **kwargs) -> None:
+#         """ Servo class wrapping the RPi.GPIO class for manual train switches.
         
-        We followed a great demo from youtuber `ExplainingComputers` to 
-        implement our first Rasperry Pi GPIO Train Switch.
+#         We followed a great demo from youtuber `ExplainingComputers` to 
+#         implement our first Rasperry Pi GPIO Train Switch.
 
-        References:
-            https://www.explainingcomputers.com/pi_servos_video.html
+#         References:
+#             https://www.explainingcomputers.com/pi_servos_video.html
 
-        Notes:
-            The default pin factory for this device is:
-            `RPi.GPIO`
-            and cannot be mixed with other pin factories:
-            https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
-        """
-        from RPi import GPIO
-        super(GPIOManualTrainSwitch, self).__init__(**kwargs)
-        GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.pin, GPIO.OUT)
-        self.servo = GPIO.PWM(self.pin, PULSE)
-        self.servo.start(0)
+#         Notes:
+#             The default pin factory for this device is:
+#             `RPi.GPIO`
+#             and cannot be mixed with other pin factories:
+#             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
+#         """
+#         from RPi import GPIO
+#         super(GPIOManualTrainSwitch, self).__init__(**kwargs)
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(self.pin, GPIO.OUT)
+#         self.servo = GPIO.PWM(self.pin, PULSE)
+#         self.servo.start(0)
 
-    @staticmethod
-    def angle_to_duty(angle: float):
-        """Map a angle to a duty cycle
+#     @staticmethod
+#     def angle_to_duty(angle: float):
+#         """Map a angle to a duty cycle
         
-        Notes:
-            0°: 2% duty cycle
-            180°: 12% duty cycle
-        """
-        return 2 + angle / 18
+#         Notes:
+#             0°: 2% duty cycle
+#             180°: 12% duty cycle
+#         """
+#         return 2 + angle / 18
 
-    def _action(self, action: str) -> object:
-        angle = self.action_to_angle(action)
-        self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
-        time.sleep(SLEEP)  # wait to stop
-        self.servo.ChangeDutyCycle(0)  # stop
-        return angle
+#     def _action(self, action: str) -> object:
+#         angle = self.action_to_angle(action)
+#         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
+#         time.sleep(SLEEP)  # wait to stop
+#         self.servo.ChangeDutyCycle(0)  # stop
+#         return angle
 
-    def _close(self) -> None:
-        """Close a connection with a switch."""
-        self.servo.stop()
+#     def _close(self) -> None:
+#         """Close a connection with a switch."""
+#         self.servo.stop()
 
 
-class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
+class ServoTrainSwitch(BaseTrainSwitch):
     def __init__(
         self,
         min_angle: float = 100.,
@@ -179,9 +179,10 @@ class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
         """
         from gpiozero.pins.pigpio import PiGPIOFactory
         from gpiozero import AngularServo
-        super(GPIOZeroManualTrainSwitch, self).__init__(**kwargs)
+        super(ServoTrainSwitch, self).__init__(**kwargs)
 
         # gpiozero API expects "BOARD" in front of the pin #
+        self.__name__ = 'Servo Train Switch'
         self.pin_name = "BOARD" + str(self.pin)
         self.min_angle = min_angle
         self.max_angle = max_angle
@@ -208,6 +209,9 @@ class GPIOZeroManualTrainSwitch(BaseTrainSwitch):
             pin_factory=PiGPIOFactory()
         )
 
+        if self.verbose:
+            print(f"{self} is started...")
+
     def _action(self, action: str) -> object:
         angle = self.action_to_angle(action)
         self.servo.angle = angle
@@ -233,6 +237,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
         from gpiozero.pins.pigpio import PiGPIOFactory
         from gpiozero import DigitalOutputDevice
         super(RelayTrainSwitch, self).__init__(**kwargs)
+        self.__name__ = 'Relay Train Switch'
         
         if not isinstance(self.pin, tuple):
             raise ValueError(f"Expecting multiple pins. Found {self.pin}")
@@ -240,8 +245,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
         if len(self.pin) != 2:
             raise ValueError(f"Expecting two pins. Found {self.pin}")
 
-        # when active_high=False, on() seems to pass voltage and off() 
-        # seems to pass no voltage.
+        # when active_high=False, on() seems to pass voltage and off() seems to pass no voltage.
         # We initially set to False.
         self.yg_relay = DigitalOutputDevice(
             pin="BOARD" + str(self.pin[0]),
@@ -255,11 +259,9 @@ class RelayTrainSwitch(BaseTrainSwitch):
             initial_value=False,
             pin_factory=PiGPIOFactory()
         )
-        self.print_states()
 
-    def print_states(self):
-        print(f"yg value: {self.yg_relay.value}")
-        print(f"br value: {self.br_relay.value}")
+        if self.verbose:
+            print(f"{self} is started...")
 
     @staticmethod
     def action_to_conf(action: str):
@@ -288,17 +290,14 @@ class RelayTrainSwitch(BaseTrainSwitch):
         if conf == 'br':
             self.br_relay.off()
             self.br_relay.on()
-            self.print_states()
             time.sleep(BLINK)
             self.br_relay.off()
 
         if conf == 'yg':
             self.yg_relay.off()
             self.yg_relay.on()
-            self.print_states()
             time.sleep(BLINK)
             self.yg_relay.off()
-        self.print_states()
         return conf
 
     def _close(self) -> None:
