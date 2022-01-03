@@ -10,19 +10,22 @@ setup_logging()
 
 # TODO: Add these switches on a config page as well
 train_switches = {
-	switch: ServoTrainSwitch(switch=switch, pin=pin, logger=app.logger) 
-	for switch, pin in enumerate([7, 11])
+	'servo_' + str(switch): ServoTrainSwitch(switch='servo_' + str(switch), pin=pin, logger=app.logger) 
+	for switch, pin in enumerate([7, 11, 13, 15])
 }
 
-train_switches.update(
-	{2: RelayTrainSwitch(switch=2, pin=(16, 18), logger=app.logger)}
-)
+other = {
+	'relay_' + str(switch): RelayTrainSwitch(switch='relay_' + str(switch), pin=pins, logger=app.logger)
+	for switch, pins in enumerate([(16, 18), (29, 31), (33, 37), (22, 32), (3, 5), (8, 10)])
+}
+
+train_switches.update(other)
 
 @app.route('/', methods = ['POST', 'GET'])
 def index():
 	if request.method == 'POST':
 		for switch, action in request.form.items():
-			switch = int(switch)  # cast the switch to an integer
+			switch = switch  # cast the switch to an integer
 			train_switches[switch].action(action)  # perform action
 	return render_template('index.html', train_switches=train_switches)
 

@@ -3,7 +3,7 @@ import logging
 import os
 
 LOG_FILE = 'server.log'
-WORKING_DIRECTORY = os.path.join('/', 'home', 'pi', 'Documents', 'trains')
+WORKING_DIRECTORY = os.path.join('/', 'home', 'lionel', 'Pi-Train-Switching')
 
 class InvalidCurrentWorkingDirectory(Exception):
     """Raised when the current working directory (cwd) is incorrect."""

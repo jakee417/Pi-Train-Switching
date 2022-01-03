@@ -13,13 +13,13 @@ BLINK = 0.25 # default time to wait between blinking
 class BaseTrainSwitch:
     def __init__(
         self,
-        switch: int,
+        switch: Union[int, str],
         pin: Union[int, Tuple[int, int]],
         logger: object = None) -> None:
         """ Abstract base class for a train switch.
 
         Args:
-            switch: Unique number for a physical switch on a train layout.
+            switch: Unique identifier for a physical switch on a train layout.
             pin: Unique number for a gpio pin on a raspberry pi.
                 Alternatively a tuple of integers for multi-pin devices.
             verbose: Either True or False. Verbosity of object.
@@ -36,7 +36,7 @@ class BaseTrainSwitch:
         return self.__name__
 
     @property
-    def switch(self) -> str:
+    def switch(self) -> Union[int, str]:
         """Returns the switch number."""
         return self.__switch
 
