@@ -1,0 +1,23 @@
+{% macro input(s) -%}
+<pre><p>{{ s }}</p></pre>
+<table>
+    <tr>
+        <form action="{{url_for("index")}}" method="post">
+            {% if s.state == "Turn": %}
+            <input type="submit" value="Turn" name="{{ s.switch }}" class="clicked">
+            {% else %}
+            <input type="submit" value="Turn" name="{{ s.switch }}" class="unclicked">
+            {% endif %}
+        </form>
+    </tr>
+    <tr>
+        <form action="{{url_for("index")}}" method="post">
+            {% if s.state == "Straight": %}
+            <input type="submit" value="Straight" name="{{ s.switch }}" class="clicked">
+            {% else %}
+            <input type="submit" value="Straight" name="{{ s.switch }}" class="unclicked">
+            {% endif %}
+        </form>
+    </tr>
+</table>
+{%- endmacro %}

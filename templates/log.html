@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href='/static/style.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+    <h1>Logging File</h1>
+    <br/>
+    <textarea id="log" name="log" rows="25" cols="125" readonly="True">
+        {{ log }}
+    </textarea>
+    <h2>Quick Links</h2>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+2022-01-02 18:37:21,412 INFO app: Servo Train Switch: 0 @ Pin : 7 is started...
+2022-01-02 18:37:21,425 INFO app: Servo Train Switch: 1 @ Pin : 11 is started...
+2022-01-02 18:37:21,439 INFO app: Relay Train Switch: 2 @ Pin : (16, 18) is started...
+2022-01-02 18:37:21,505 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2022-01-02 18:54:16,001 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:16] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:22,136 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:22] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-02 18:54:23,744 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:23] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:28,837 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 18:54:28] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:28,953 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:28] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-02 18:54:28,997 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 18:54:28] "[37mGET /static/style.css HTTP/1.1[0m" 200 -
+2022-01-02 18:54:32,270 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:32] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:34,372 INFO app: Servo Train Switch: 1 @ Pin : 11: 
+++++ initial state: None 
+++++ action: Turn 
+++++ update: 100.0
+2022-01-02 18:54:34,376 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 18:54:34] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:36,014 INFO app: Servo Train Switch: 0 @ Pin : 7: 
+++++ initial state: None 
+++++ action: Turn 
+++++ update: 100.0
+2022-01-02 18:54:36,018 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 18:54:36] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:36,311 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:36] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:38,938 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:38] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:42,542 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:42] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:44,217 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:44] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 18:54:51,653 INFO werkzeug: 192.168.1.212 - - [02/Jan/2022 18:54:51] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-02 19:02:32,177 INFO app: Servo Train Switch: 1 @ Pin : 11: 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: 180.0
+2022-01-02 19:02:32,183 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:02:32] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 19:02:33,052 INFO app: Servo Train Switch: 0 @ Pin : 7: 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: 180.0
+2022-01-02 19:02:33,057 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:02:33] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 19:10:05,149 INFO app: Relay Train Switch: 2 @ Pin : (16, 18): 
+++++ initial state: None 
+++++ action: Straight 
+++++ update: yg
+2022-01-02 19:10:05,154 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:10:05] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 19:10:11,579 INFO app: Relay Train Switch: 2 @ Pin : (16, 18): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-02 19:10:11,585 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:10:11] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-02 19:54:39,699 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:54:39] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-02 19:54:39,848 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:54:39] "[37mGET /static/favicon.ico HTTP/1.1[0m" 200 -
+2022-01-02 19:55:27,692 INFO werkzeug: 192.168.1.201 - - [02/Jan/2022 19:55:27] "[37mGET / HTTP/1.1[0m" 200 -

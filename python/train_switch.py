@@ -15,7 +15,7 @@ class BaseTrainSwitch:
         self,
         switch: int,
         pin: Union[int, Tuple[int, int]],
-        verbose: bool = False) -> None:
+        logger: object = None) -> None:
         """ Abstract base class for a train switch.
 
         Args:
@@ -25,22 +25,42 @@ class BaseTrainSwitch:
             verbose: Either True or False. Verbosity of object.
         """
         self.__name__ = 'Base Train Switch'
-        self.switch = switch
-        self.pin = pin
-        self.verbose = verbose
-        self.state = None
+        self.__switch = switch
+        self.__pin = pin
+        self.__state = None
+        self.logger = logger
+
+    @property
+    def name(self) -> str:
+        """Returns the name of the object."""
+        return self.__name__
+
+    @property
+    def switch(self) -> str:
+        """Returns the switch number."""
+        return self.__switch
+
+    @property
+    def pin(self) -> str:
+        """Returns the pin number(s)."""
+        return self.__pin
+
+    @property
+    def state(self) -> str:
+        """Returns the active state."""
+        return self.__state
+
+    @state.setter
+    def state(self, state: str) -> None:
+        self.__state = state
 
     def __repr__(self):
-        return f"{self.__name__}: {self.switch} @ Pin: {self.pin}"
+        return f"{self.name}: {self.switch} @ Pin : {self.pin}"
 
-    def print_update(
-        self, 
-        initial_state: str, 
-        action: str, 
-        update: object) -> None:
-        """Prints update message"""
-        if self.verbose:
-            print(
+    def log(self, initial_state: str, action: str, update: object) -> None:
+        """Logs update message"""
+        if self.logger:
+            self.logger.info(
                 f"{self}: \n" +
                 f"++++ initial state: {initial_state} \n" +
                 f"++++ action: {action} \n" +
@@ -78,19 +98,19 @@ class BaseTrainSwitch:
             action: One of `left` or `right`
         """
         if self.state == action:
-            self.print_update(self.state, action, 'skipped')
+            self.log(self.state, action, 'skipped')
             return
 
         # complete derived class's work
         try:
             update = self._action(action)
-            self.print_update(self.state, action, update)
+            self.log(self.state, action, update)
 
             # remember new state to check against future actions
             self.state = action
 
         except Exception as ex:
-            print(
+            self.logger.exception(
                 f"{self}: \n" +
                 f"++++ exception raised: {ex}"
             )
@@ -103,54 +123,8 @@ class BaseTrainSwitch:
         """Close a connection with a switch."""
         self._close()
         
-        if self.verbose:
-            print(f"{self} is closed...")
-        
-
-# TODO: Not using this for now...
-# class GPIOManualTrainSwitch(BaseTrainSwitch):
-#     def __init__(self, **kwargs) -> None:
-#         """ Servo class wrapping the RPi.GPIO class for manual train switches.
-        
-#         We followed a great demo from youtuber `ExplainingComputers` to 
-#         implement our first Rasperry Pi GPIO Train Switch.
-
-#         References:
-#             https://www.explainingcomputers.com/pi_servos_video.html
-
-#         Notes:
-#             The default pin factory for this device is:
-#             `RPi.GPIO`
-#             and cannot be mixed with other pin factories:
-#             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
-#         """
-#         from RPi import GPIO
-#         super(GPIOManualTrainSwitch, self).__init__(**kwargs)
-#         GPIO.setmode(GPIO.BOARD)
-#         GPIO.setup(self.pin, GPIO.OUT)
-#         self.servo = GPIO.PWM(self.pin, PULSE)
-#         self.servo.start(0)
-
-#     @staticmethod
-#     def angle_to_duty(angle: float):
-#         """Map a angle to a duty cycle
-        
-#         Notes:
-#             0°: 2% duty cycle
-#             180°: 12% duty cycle
-#         """
-#         return 2 + angle / 18
-
-#     def _action(self, action: str) -> object:
-#         angle = self.action_to_angle(action)
-#         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
-#         time.sleep(SLEEP)  # wait to stop
-#         self.servo.ChangeDutyCycle(0)  # stop
-#         return angle
-
-#     def _close(self) -> None:
-#         """Close a connection with a switch."""
-#         self.servo.stop()
+        if self.logger:
+            self.logger.info(f"{self} is closed...")
 
 
 class ServoTrainSwitch(BaseTrainSwitch):
@@ -209,8 +183,8 @@ class ServoTrainSwitch(BaseTrainSwitch):
             pin_factory=PiGPIOFactory()
         )
 
-        if self.verbose:
-            print(f"{self} is started...")
+        if self.logger:
+            self.logger.info(f"{self} is started...")
 
     def _action(self, action: str) -> object:
         angle = self.action_to_angle(action)
@@ -260,8 +234,8 @@ class RelayTrainSwitch(BaseTrainSwitch):
             pin_factory=PiGPIOFactory()
         )
 
-        if self.verbose:
-            print(f"{self} is started...")
+        if self.logger:
+            self.logger.info(f"{self} is started...")
 
     @staticmethod
     def action_to_conf(action: str):
@@ -303,3 +277,48 @@ class RelayTrainSwitch(BaseTrainSwitch):
     def _close(self) -> None:
         self.yg_relay.close()
         self.br_relay.close()
+
+# FIXME: Not using this for now...
+# class GPIOManualTrainSwitch(BaseTrainSwitch):
+#     def __init__(self, **kwargs) -> None:
+#         """ Servo class wrapping the RPi.GPIO class for manual train switches.
+        
+#         We followed a great demo from youtuber `ExplainingComputers` to 
+#         implement our first Rasperry Pi GPIO Train Switch.
+
+#         References:
+#             https://www.explainingcomputers.com/pi_servos_video.html
+
+#         Notes:
+#             The default pin factory for this device is:
+#             `RPi.GPIO`
+#             and cannot be mixed with other pin factories:
+#             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
+#         """
+#         from RPi import GPIO
+#         super(GPIOManualTrainSwitch, self).__init__(**kwargs)
+#         GPIO.setmode(GPIO.BOARD)
+#         GPIO.setup(self.pin, GPIO.OUT)
+#         self.servo = GPIO.PWM(self.pin, PULSE)
+#         self.servo.start(0)
+
+#     @staticmethod
+#     def angle_to_duty(angle: float):
+#         """Map a angle to a duty cycle
+        
+#         Notes:
+#             0°: 2% duty cycle
+#             180°: 12% duty cycle
+#         """
+#         return 2 + angle / 18
+
+#     def _action(self, action: str) -> object:
+#         angle = self.action_to_angle(action)
+#         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
+#         time.sleep(SLEEP)  # wait to stop
+#         self.servo.ChangeDutyCycle(0)  # stop
+#         return angle
+
+#     def _close(self) -> None:
+#         """Close a connection with a switch."""
+#         self.servo.stop()

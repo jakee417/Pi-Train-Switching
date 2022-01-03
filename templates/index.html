@@ -1,3 +1,4 @@
+{% import 'forms.html' as forms %}
 <!DOCTYPE html>
 
 <html>
@@ -10,79 +11,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
-
-    <h1>{{ title }}</h1>
+    <h1>Train Switches</h1>
     <hr />
-    <p>{{ name_0 }}:</p>
-    <table style="width:100%">
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_0 == "Turn": %}
-                <input type="submit" value="Turn" name="0" class="clicked">
-                {% else %}
-                <input type="submit" value="Turn" name="0" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_0 == "Straight": %}
-                <input type="submit" value="Straight" name="0" class="clicked">
-                {% else %}
-                <input type="submit" value="Straight" name="0" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-    </table>
-
+    <!-- Loop through all switches and display controls -->
+    {% for key, value in train_switches.items() %}
+    {{ forms.input(value) }}
     <hr />
-
-    <p>{{ name_1 }}:</p>
-    <table style="width:100%">
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_1 == "Turn": %}
-                <input type="submit" value="Turn" name="1" class="clicked">
-                {% else %}
-                <input type="submit" value="Turn" name="1" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_1 == "Straight": %}
-                <input type="submit" value="Straight" name="1" class="clicked">
-                {% else %}
-                <input type="submit" value="Straight" name="1" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-    </table>
-
-    <hr />
-
-    <p>{{ name_2 }}:</p>
-    <table style="width:100%">
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_2 == "Turn": %}
-                <input type="submit" value="Turn" name="2" class="clicked">
-                {% else %}
-                <input type="submit" value="Turn" name="2" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-        <tr>
-            <form action="{{url_for("index")}}" method="post">
-                {% if status_2 == "Straight": %}
-                <input type="submit" value="Straight" name="2" class="clicked">
-                {% else %}
-                <input type="submit" value="Straight" name="2" class="unclicked">
-                {% endif %}
-            </form>
-        </tr>
-    </table>
-
+    {% endfor %}
+    <h2>Quick Links</h2>
+    <a href="{{ url_for('log') }}">View Logs</a>
 
 </body>
 </html>

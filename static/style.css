@@ -4,11 +4,19 @@ body {
 }
 
 input.unclicked {
-	background: rgb(193, 220, 230);
-	color: rgba(0, 0, 0, 0.308);
+	background: rgb(193, 216, 224);
+	color: rgba(0, 0, 0, 0.5);
 }
 
 input.clicked {
 	background: darkblue;
 	color: white;
+}
+
+textarea {
+	height: auto;
+  }
+
+table {
+	width:100%;
 }

@@ -1,0 +1,14 @@
+[Unit]
+Description=Train Switch
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 app.py
+WorkingDirectory=/home/pi/Documents/trains/
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
