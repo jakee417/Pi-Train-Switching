@@ -8,18 +8,31 @@ check_working_directory()
 app = Flask(__name__)
 setup_logging()
 
+SERVO_SWITCHES = [7, 11, 13, 15]
+RELAY_SWITCHES = [
+	(16, 18),
+	(29, 31),
+	(33, 37),
+	(22, 32),
+	(3, 5), 
+	(8, 10), 
+	(19, 21), 
+	(23, 35), 
+	(38, 40), 
+	(24, 26),
+	(12, 36)
+]
+
 # TODO: Add these switches on a config page as well
 train_switches = {
 	'servo_' + str(switch): ServoTrainSwitch(switch='servo_' + str(switch), pin=pin, logger=app.logger) 
-	for switch, pin in enumerate([7, 11, 13, 15])
+	for switch, pin in enumerate(SERVO_SWITCHES)
 }
 
-other = {
+train_switches.update({
 	'relay_' + str(switch): RelayTrainSwitch(switch='relay_' + str(switch), pin=pins, logger=app.logger)
-	for switch, pins in enumerate([(16, 18), (29, 31), (33, 37), (22, 32), (3, 5), (8, 10)])
-}
-
-train_switches.update(other)
+	for switch, pins in enumerate(RELAY_SWITCHES)
+})
 
 @app.route('/', methods = ['POST', 'GET'])
 def index():
