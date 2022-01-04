@@ -1,9 +1,12 @@
 """Utility functions."""
 import logging
 import os
+import getpass
 
 LOG_FILE = 'server.log'
-WORKING_DIRECTORY = os.path.join('/', 'home', 'lionel', 'Pi-Train-Switching')
+WORKING_DIRECTORY = os.path.join(
+    '/', 'home', getpass.getuser(), 'Pi-Train-Switching'
+)
 
 class InvalidCurrentWorkingDirectory(Exception):
     """Raised when the current working directory (cwd) is incorrect."""
