@@ -5,13 +5,12 @@ After=network.target
 
 [Service]
 ExecStart=/usr/bin/python3 app.py
-# ensure to replace `User` with your user
-WorkingDirectory=/home/celery/Pi-Train-Switching
+WorkingDirectory=/%h/%u/Pi-Train-Switching
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
 # ensure to replace `User` with your user
-User=celery
+User=%u
 
 [Install]
 WantedBy=multi-user.target
