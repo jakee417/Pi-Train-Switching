@@ -1,15 +1,13 @@
 [Unit]
 Description=Train Switch
-# launch service after network is established
 After=network.target
 
 [Service]
 ExecStart=/usr/bin/python3 app.py
-WorkingDirectory=/%h/%u/Pi-Train-Switching
+WorkingDirectory=/home/%u/Pi-Train-Switching
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-# ensure to replace `User` with your user
 User=%u
 
 [Install]
