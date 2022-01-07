@@ -1,5 +1,5 @@
 # Control Lionel Switches with a Raspberry Pi Zero 2 W and Servos!
-This project demonstrates how to control Lionel Train Switches from a Raspberry Pi (RPi).
+This project demonstrates how to control Lionel Train Switches from a Raspberry Pi (`RPi`).
 
 ![Diagram](./static/diagram.jpg#gh-light-mode-only)
 ![Diagram](./static/darkdiagram.jpg#gh-dark-mode-only)
@@ -18,12 +18,12 @@ This project demonstrates how to control Lionel Train Switches from a Raspberry 
 
 ## Hardware Setup
 **Lionel Manual Switches**
-- [Connecting SG-90 Servo to RPi](https://www.youtube.com/watch?v=xHDT4CwjUQE)
+- [Connecting SG-90 Servo to `RPi`](https://www.youtube.com/watch?v=xHDT4CwjUQE)
 - TODO: setup for building clay structures
 
 **Lionel Remote Switches**
 - [Connecting remote switch to the control relay remote switch](https://www.dexterindustries.com/Arduberry/example-projects-with-arduberry-and-raspberry-pi/lionel-train-switch-control-with-a-raspberry-pi-2/)
-- [Connecting RPi to control relay](https://www.electronicshub.org/control-a-relay-using-raspberry-pi/)
+- [Connecting `RPi` to control relay](https://www.electronicshub.org/control-a-relay-using-raspberry-pi/)
 
 ## Installation
 ```bash
@@ -68,10 +68,23 @@ Jan 06 21:20:11 raspberrypi python3[9313]:  * Debug mode: off
 ```
 
 ## Viewing the Web Server
-- First, ensure the RPi and client machine (laptop, cellphone tablet, etc.) are on the same LAN network. 
-- On your client machine  browse to [`http://raspberrypi.local:5000`](http://raspberrypi.local:5000). If you have a custom `hostname`, replace it for `raspberrypi`.
-- Alternatively, on the RPi you can run
+- First, ensure the `RPi` and client machine (laptop, cellphone tablet, etc.) are on the same `WiFi` network. 
+- On your client machine  browse to [`http://raspberrypi.local:5000`](http://raspberrypi.local:5000). If you have a custom `hostname`, replace  `rasberrypi` with your custom `hostname`.
+- Alternatively, on the `RPi` you can run,
 ```bash
-ifconfig
+ifconfig wlan0
 ```
-and record your `ip address`. Browing to this `ip address` on `port 5000` will also allow you to view the web server.
+You should see something like this,
+```
+wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.0.204  netmask 255.255.255.0  broadcast 10.0.0.255
+        inet6 fe80::418a:5e0:a8c5:1d01  prefixlen 64  scopeid 0x20<link>
+        inet6 2601:646:8302:38d0:cc62:c001:bf2d:ce57  prefixlen 64  scopeid 0x0<global>
+        inet6 2601:646:8302:38d0::f12b  prefixlen 128  scopeid 0x0<global>
+        ether e4:5f:01:77:a0:4b  txqueuelen 1000  (Ethernet)
+        RX packets 154917  bytes 65068515 (62.0 MiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 195045  bytes 37482617 (35.7 MiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+```
+Browsing to the `inet` field with [`http://10.0.0.204:5000`](http://10.0.0.204:5000) will also allow you to view the web server.
