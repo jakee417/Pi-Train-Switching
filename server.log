@@ -1,5 +1,41 @@
-2022-01-06 22:35:07,706 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5) is started...
-2022-01-06 22:35:07,720 INFO app: Relay Train Switch: relay_1 @ Pin : (16, 18) is started...
-2022-01-06 22:35:07,734 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
-2022-01-06 22:35:08,627 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:35:08] "[37mGET /about/ HTTP/1.1[0m" 200 -
-2022-01-06 22:36:21,830 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:36:21] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:45:10,053 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5) is started...
+2022-01-06 22:45:10,066 INFO app: Relay Train Switch: relay_1 @ Pin : (16, 18) is started...
+2022-01-06 22:45:10,085 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2022-01-06 22:45:13,149 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:13] "[37mGET /beast/ HTTP/1.1[0m" 200 -
+2022-01-06 22:45:21,782 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:21] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:45:24,398 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:24] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-06 22:45:27,336 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:27] "[37mGET /about/ HTTP/1.1[0m" 200 -
+2022-01-06 22:45:42,755 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:42] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:45:51,059 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:45:51] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:46:10,766 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:10] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:46:10,877 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:10] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2022-01-06 22:46:12,070 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:12] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:46:21,053 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:21] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:46:21,096 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:21] "[37mGET /static/style.css HTTP/1.1[0m" 200 -
+2022-01-06 22:46:21,145 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:21] "[37mGET /static/favicon.ico HTTP/1.1[0m" 200 -
+2022-01-06 22:46:22,826 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:22] "[37mGET /beast/ HTTP/1.1[0m" 200 -
+2022-01-06 22:46:22,986 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:22] "[37mGET /static/trains.jpeg HTTP/1.1[0m" 200 -
+2022-01-06 22:46:30,588 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:30] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:46:32,236 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:32] "[37mGET /about/ HTTP/1.1[0m" 200 -
+2022-01-06 22:46:32,372 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:46:32] "[37mGET /static/diagram.jpg HTTP/1.1[0m" 200 -
+2022-01-06 22:47:05,332 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:05] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:47:05,495 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:05] "[37mGET /static/style.css HTTP/1.1[0m" 200 -
+2022-01-06 22:47:08,126 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5): 
+++++ initial state: None 
+++++ action: Turn 
+++++ update: br
+2022-01-06 22:47:08,129 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:08] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-06 22:47:09,274 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5): 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: yg
+2022-01-06 22:47:09,279 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:09] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-06 22:47:10,692 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:10] "[37mGET /about/ HTTP/1.1[0m" 200 -
+2022-01-06 22:47:10,831 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:10] "[37mGET /static/diagram.jpg HTTP/1.1[0m" 200 -
+2022-01-06 22:47:14,275 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:14] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-06 22:47:23,261 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:23] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:47:24,944 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:24] "[37mGET /beast/ HTTP/1.1[0m" 200 -
+2022-01-06 22:47:25,110 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:25] "[37mGET /static/trains.jpeg HTTP/1.1[0m" 200 -
+2022-01-06 22:47:32,776 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:32] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-06 22:47:33,758 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:33] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-06 22:47:35,963 INFO werkzeug: 10.0.0.203 - - [06/Jan/2022 22:47:35] "[37mGET /about/ HTTP/1.1[0m" 200 -

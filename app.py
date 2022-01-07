@@ -40,6 +40,10 @@ def log():
 @app.route('/about/', methods = ['GET'])
 def about():
 	return render_template('about.html')
+
+@app.route('/beast/', methods = ['GET'])
+def beast():
+	return render_template('beast.html')
  
 if __name__ == '__main__':
 	# Run the app on 0.0.0.0 which is visible on the local network
