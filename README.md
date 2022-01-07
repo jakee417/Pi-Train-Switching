@@ -68,7 +68,7 @@ Jan 06 21:20:11 raspberrypi python3[9313]:  * Debug mode: off
 
 ## Viewing the Web Server
 - First, ensure the RPi and client machine (laptop, cellphone tablet, etc.) are on the same LAN network. 
-- On your client machine  browse to [`raspberrypi.local:5000`](raspberrypi.local:5000). If you have a custom `hostname`, replace it for `raspberrypi`.
+- On your client machine  browse to [http://raspberrypi.local:5000](raspberrypi.local:5000). If you have a custom `hostname`, replace it for `raspberrypi`.
 - Alternatively, on the RPi you can run
 ```bash
 ifconfig
