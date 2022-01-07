@@ -11,7 +11,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
-    <h1>Train Switches  ({{ train_switches.__len__() }})</h1>
+    
+    <h1>Train Switch Control Page </h1>
+    Active Switches: {{ train_switches.__len__() }}
     <hr />
     <!-- Loop through all switches and display controls -->
     {% for key, value in train_switches.items() %}
@@ -21,5 +23,10 @@
     <h2>Quick Links</h2>
     <a href="{{ url_for('log') }}">View Logs</a>
 
+    <br>
+    <h2>Trains!</h2>
+    <img src="/static/trains.jpeg" alt="trains" width="400" height="300" title="Lionel's Granite Quarry Run">
+    <br>
+    <a href="https://www.lionelstore.com/LionelStore%20Product%20Images/2022010-01.jpg">Photo Credit Lionel</a>
 </body>
 </html>
