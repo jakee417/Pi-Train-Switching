@@ -1,7 +1,7 @@
 # Control Lionel Switches with a Raspberry Pi Zero 2 W and Servos!
 This project demonstrates how to control Lionel Train Switches from a Raspberry Pi (RPi).
 
-![Diagram](./static/diagram.jpg#gh-light-mode-only)
+![Diagram](./static/diagram.jpg)
 
 ## Necessary Hardware
 [Lionel Manual Switches](http://www.lionel.com/products/fastrack-o36-manual-switch-right-hand-6-12018/)
@@ -68,7 +68,7 @@ Jan 06 21:20:11 raspberrypi python3[9313]:  * Debug mode: off
 
 ## Viewing the Web Server
 - First, ensure the RPi and client machine (laptop, cellphone tablet, etc.) are on the same LAN network. 
-- On your client machine  browse to [http://raspberrypi.local:5000](raspberrypi.local:5000). If you have a custom `hostname`, replace it for `raspberrypi`.
+- On your client machine  browse to [`http://raspberrypi.local:5000`](http://raspberrypi.local:5000). If you have a custom `hostname`, replace it for `raspberrypi`.
 - Alternatively, on the RPi you can run
 ```bash
 ifconfig

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href='/static/style.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+    <h1>About</h1>
+    <a href="https://github.com/jakee417/Pi-Train-Switching">View more on GitHub</a>
+    <br>
+    <img src="/static/diagram.jpg" alt="trains" width="400" height="300" title="Schematic">
+    <br>
+    Photo Credit Lionel, Raspberry Pi Foundation
+    <h2>Quick Links</h2>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+
+</html>

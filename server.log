@@ -1,10 +1,4 @@
-2022-01-06 21:20:11,519 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5) is started...
-2022-01-06 21:20:11,532 INFO app: Relay Train Switch: relay_1 @ Pin : (16, 18) is started...
-2022-01-06 21:20:11,543 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
-2022-01-06 21:20:12,964 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5): 
-++++ initial state: None 
-++++ action: Turn 
-++++ update: br
-2022-01-06 21:20:13,075 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 21:20:13] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-06 21:20:18,490 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 21:20:18] "[37mGET /log/ HTTP/1.1[0m" 200 -
-2022-01-06 21:20:21,011 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 21:20:21] "[37mGET /log/ HTTP/1.1[0m" 200 -
+2022-01-06 22:35:07,706 INFO app: Relay Train Switch: relay_0 @ Pin : (3, 5) is started...
+2022-01-06 22:35:07,720 INFO app: Relay Train Switch: relay_1 @ Pin : (16, 18) is started...
+2022-01-06 22:35:07,734 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2022-01-06 22:35:08,627 INFO werkzeug: 10.0.0.61 - - [06/Jan/2022 22:35:08] "[37mGET /about/ HTTP/1.1[0m" 200 -

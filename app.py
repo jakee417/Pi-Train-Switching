@@ -36,6 +36,10 @@ def index():
 @app.route('/log/', methods = ['GET'])
 def log():
 	return render_template('log.html', log=read_logs())
+
+@app.route('/about/', methods = ['GET'])
+def about():
+	return render_template('about.html')
  
 if __name__ == '__main__':
 	# Run the app on 0.0.0.0 which is visible on the local network
