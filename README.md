@@ -1,7 +1,8 @@
 # Control Lionel Switches with a Raspberry Pi Zero 2 W and Servos!
 This project demonstrates how to control Lionel Train Switches from a Raspberry Pi (RPi).
 
-![Diagram](./static/diagram.jpg)
+![Diagram](./static/diagram.jpg#gh-light-mode-only)
+![Diagram](./static/darkdiagram.jpg#gh-dark-mode-only)
 
 ## Necessary Hardware
 [Lionel Manual Switches](http://www.lionel.com/products/fastrack-o36-manual-switch-right-hand-6-12018/)
