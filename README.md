@@ -18,7 +18,7 @@ This project demonstrates how to control Lionel Train Switches from a Raspberry 
 
 ## Hardware Setup
 **Lionel Manual Switches**
-- [Connecting SG-90 Servo to `RPi`](https://www.youtube.com/watch?v=xHDT4CwjUQE)
+- [Connecting SG-90 Servo to `RPi`](https://youtu.be/xHDT4CwjUQE?t=323)
 - TODO: setup for building clay structures
 
 **Lionel Remote Switches**
@@ -74,17 +74,10 @@ Jan 06 21:20:11 raspberrypi python3[9313]:  * Debug mode: off
 ```bash
 ifconfig wlan0
 ```
-You should see something like this,
+You should see something like this (likely with a different `inet` value),
 ```
 wlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 10.0.0.204  netmask 255.255.255.0  broadcast 10.0.0.255
-        inet6 fe80::418a:5e0:a8c5:1d01  prefixlen 64  scopeid 0x20<link>
-        inet6 2601:646:8302:38d0:cc62:c001:bf2d:ce57  prefixlen 64  scopeid 0x0<global>
-        inet6 2601:646:8302:38d0::f12b  prefixlen 128  scopeid 0x0<global>
-        ether e4:5f:01:77:a0:4b  txqueuelen 1000  (Ethernet)
-        RX packets 154917  bytes 65068515 (62.0 MiB)
-        RX errors 0  dropped 0  overruns 0  frame 0
-        TX packets 195045  bytes 37482617 (35.7 MiB)
-        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+        ...
 ```
 Browsing to the `inet` field with [`http://10.0.0.204:5000`](http://10.0.0.204:5000) will also allow you to view the web server.

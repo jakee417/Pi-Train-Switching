@@ -12,16 +12,18 @@
 
 <body>
     
-    <h1>Train Switch Control Page </h1>
-    Active Switches: {{ train_switches.__len__() }}
+    <h1>Train Switch Control</h1>
+    Active Switches: {{ devices.__len__() }}
     <hr />
     <!-- Loop through all switches and display controls -->
-    {% for key, value in train_switches.items() %}
-    {{ forms.input(value) }}
+    {% for key, value in devices.items() %}
+    {{ forms.display(value) }}
     <hr />
     {% endfor %}
     <h2>Quick Links</h2>
     <a href="{{ url_for('about') }}">View About</a>
+    <br>
+    <a href="{{ url_for('config') }}">View Configuration</a>
     <br>
     <a href="{{ url_for('log') }}">View Logs</a>
     <br>

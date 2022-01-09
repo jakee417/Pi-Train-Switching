@@ -9,23 +9,19 @@ PULSE = 50  # default pulse value, 50Hz
 SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 BLINK = 0.25 # default time to wait between blinking
 
-
 class BaseTrainSwitch:
     def __init__(
         self,
-        switch: Union[int, str],
         pin: Union[int, Tuple[int, int]],
         logger: object = None) -> None:
         """ Abstract base class for a train switch.
 
         Args:
-            switch: Unique identifier for a physical switch on a train layout.
             pin: Unique number for a gpio pin on a raspberry pi.
                 Alternatively a tuple of integers for multi-pin devices.
             verbose: Either True or False. Verbosity of object.
         """
         self.__name__ = 'Base Train Switch'
-        self.__switch = switch
         self.__pin = pin
         self.__state = None
         self.logger = logger
@@ -36,14 +32,18 @@ class BaseTrainSwitch:
         return self.__name__
 
     @property
-    def switch(self) -> Union[int, str]:
-        """Returns the switch number."""
-        return self.__switch
-
-    @property
     def pin(self) -> str:
         """Returns the pin number(s)."""
         return self.__pin
+
+    @property
+    def pin_list(self) -> list:
+        """Returns a list of used pin(s)"""
+        if isinstance(self.__pin, int):
+            return [self.__pin]
+        else:
+            return list(self.__pin)
+
 
     @property
     def state(self) -> str:
@@ -55,7 +55,7 @@ class BaseTrainSwitch:
         self.__state = state
 
     def __repr__(self):
-        return f"{self.name}: {self.switch} @ Pin : {self.pin}"
+        return f"{self.name} @ Pin : {self.pin}"
 
     def log(self, initial_state: str, action: str, update: object) -> None:
         """Logs update message"""
@@ -95,7 +95,7 @@ class BaseTrainSwitch:
         state of the train switch.
 
         Args:
-            action: One of `left` or `right`
+            action: One of `Straight` or `Turn`
         """
         if self.state == action:
             self.log(self.state, action, 'skipped')
@@ -124,7 +124,7 @@ class BaseTrainSwitch:
         self._close()
         
         if self.logger:
-            self.logger.info(f"{self} is closed...")
+            self.logger.info(f"++++ {self} is closed...")
 
 
 class ServoTrainSwitch(BaseTrainSwitch):
@@ -184,7 +184,7 @@ class ServoTrainSwitch(BaseTrainSwitch):
         )
 
         if self.logger:
-            self.logger.info(f"{self} is started...")
+            self.logger.info(f"++++ {self} is started...")
 
     def _action(self, action: str) -> object:
         angle = self.action_to_angle(action)
@@ -235,7 +235,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
         )
 
         if self.logger:
-            self.logger.info(f"{self} is started...")
+            self.logger.info(f"++++ {self} is started...")
 
     @staticmethod
     def action_to_conf(action: str):
@@ -277,6 +277,13 @@ class RelayTrainSwitch(BaseTrainSwitch):
     def _close(self) -> None:
         self.yg_relay.close()
         self.br_relay.close()
+
+CLS_MAP = {
+	'relay': RelayTrainSwitch,
+	'servo': ServoTrainSwitch,
+	'Relay Train Switch': RelayTrainSwitch,
+	'Servo Train Switch': ServoTrainSwitch
+}
 
 # FIXME: Not using this for now...
 # class GPIOManualTrainSwitch(BaseTrainSwitch):

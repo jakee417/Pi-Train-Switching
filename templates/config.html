@@ -1,0 +1,44 @@
+{% import 'forms.html' as forms %}
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" href='/static/style.css'/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+    
+    <h1>Train Switch Config</h1>
+    Active Switches: {{ devices.__len__() }}
+    <hr />
+    {% for key, value in devices.items() %}
+    {{ forms.active(value) }}
+    <hr />
+    {% endfor %}
+    * Refer to physical pin locations, not GPIO X.
+    {{ forms.config(pin_pool) }}
+    {% if error: %}
+    <p style="color:red">Error {{ error }}</p>
+    {% endif %}
+    <hr />
+    {{ forms.save_load() }}
+    {% if message: %}
+    <p style="color:red">{{ message }}</p>
+    {% endif %}
+    <hr />
+
+    <h2>Available Pins</h2>
+    <pre>{{ pin_pool }}</pre>
+
+    <h2>Pinout Quick Reference</h2>
+    <pre>{{ pinout|safe }}</pre>
+
+    <h2>Quick Links</h2>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>

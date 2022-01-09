@@ -1,23 +1,128 @@
-{% macro input(s) -%}
+{% macro display(s) -%}
 <pre><p>{{ s }}</p></pre>
 <table>
     <tr>
+        <!-- Show submit buttons that change with the switch property -->
         <form action="{{url_for("index")}}" method="post">
             {% if s.state == "Turn": %}
-            <input type="submit" value="Turn" name="{{ s.switch }}" class="clicked">
+            <input type="submit" value="Turn" name="{{ s.pin }}" class="clicked">
             {% else %}
-            <input type="submit" value="Turn" name="{{ s.switch }}" class="unclicked">
+            <input type="submit" value="Turn" name="{{ s.pin }}" class="unclicked">
             {% endif %}
         </form>
     </tr>
     <tr>
         <form action="{{url_for("index")}}" method="post">
             {% if s.state == "Straight": %}
-            <input type="submit" value="Straight" name="{{ s.switch }}" class="clicked">
+            <input type="submit" value="Straight" name="{{ s.pin }}" class="clicked">
             {% else %}
-            <input type="submit" value="Straight" name="{{ s.switch }}" class="unclicked">
+            <input type="submit" value="Straight" name="{{ s.pin }}" class="unclicked">
             {% endif %}
         </form>
     </tr>
+    <tr>
+        <!-- Show an indicator light that matches the physical train switch -->
+        <!-- Image credit: https://en.wikipedia.org/wiki/Bela_Ski_Resort -->
+        [
+        {% if s.state == "Straight": %}
+        <img src="/static/green.png" alt="straight" width="16" height="16" title="Straight">
+        {% elif s.state == "Turn" %}
+        <img src="/static/red.png" alt="turn" width="16" height="16" title="Turn">
+        {% else: %}
+        <img src="/static/black.png" alt="uncontrolled" width="16" height="16" title="Uncontrolled">
+        {% endif %}
+        ]
+    </tr>
+</table>
+{%- endmacro %}
+
+{% macro active(s) -%}
+<table>
+    <tr>
+        <td>
+            <form action="{{url_for("config")}}" method="post">
+                <button class="btn" value="delete" name="{{ s.pin }}">
+                    <i class="fa fa-close"></i>
+                </button>
+            </form> 
+        </td>
+        <td>
+            <pre>{{ s }}</pre>
+        </td>
+    </tr>
+</table>
+{%- endmacro %}
+
+{% macro config(pin_pool) -%}
+<script>
+function submitForm(){
+    document.getElementById("add").submit();
+}
+</script>
+
+<table>
+    <tr>
+        <td> 
+            <button class="btn" onclick="submitForm()">
+                <i class="fa fa-plus-circle"></i>
+            </button>
+        </td>
+        <td>
+            <form action="{{url_for("config")}}" method="post" id='add'>
+                <select name="type">
+                    <option value="relay">Relay</option>
+                    <option value="servo">Servo</option>
+                </select>
+        </td>
+        <td>
+            <select name="pin1">
+            <option> </option>
+            {% for p in pin_pool %}
+            <option value={{ p }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="pin2">
+            <option> </option>
+            {% for p in pin_pool %}
+            <option value={{ p }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+            </form> 
+        </td>
+    </tr>
+</table>
+{%- endmacro %}
+
+{% macro active(s) -%}
+<table>
+    <tr>
+        <td>
+            <form action="{{url_for("config")}}" method="post">
+                <button class="btn" value="delete" name="{{ s.pin }}">
+                    <i class="fa fa-close"></i>
+                </button>
+            </form> 
+        </td>
+        <td>
+            <pre>{{ s }}</pre>
+        </td>
+    </tr>
+</table>
+{%- endmacro %}
+
+{% macro save_load() -%}
+<table>
+    <td> 
+        <form action="{{url_for("save")}}" method="get">
+            <input type="submit" value="Save">
+        </form>
+    </td>
+    <td>
+        <form action="{{url_for("load")}}" method="get">
+            <input type="submit" value="Load">
+        </form>
+    </td>
 </table>
 {%- endmacro %}

@@ -4,11 +4,20 @@
     <link rel="stylesheet" href='/static/style.css' />
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
+<body>
 <h1>Sexy Beast!</h1>
 <img src="/static/trains.jpeg" alt="trains" width="800" height="600" title="Lionel's Granite Quarry Run">
 <br>
+<audio controls autoplay>
+    <source src="/static/train.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+<br>
+<h2>Credits</h2>
 <a href="https://www.lionelstore.com/LionelStore%20Product%20Images/2022010-01.jpg">Photo Credit Lionel</a>
+<br>
+<a href="https://www.soundjay.com/train-sound-effect.html">Sound Credit</a>
 <h2>Quick Links</h2>
 <a href="{{ url_for('index') }}">Back to Home</a>
-
+</body>
 </html>
