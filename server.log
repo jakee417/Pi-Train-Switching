@@ -1,101 +1,132 @@
-2022-01-08 21:01:30,296 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
-2022-01-08 21:01:30,310 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
-2022-01-08 21:01:30,311 INFO app: Relay Train Switch @ Pin : (3, 5): 
+2022-01-10 20:24:21,174 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
+2022-01-10 20:24:21,221 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
+2022-01-10 20:24:21,222 INFO app: Relay Train Switch @ Pin : (8, 10): 
 ++++ initial state: None 
 ++++ action: None 
 ++++ update: skipped
-2022-01-08 21:01:30,311 INFO app: Relay Train Switch @ Pin : (8, 10): 
+2022-01-10 20:24:21,222 INFO app: Relay Train Switch @ Pin : (3, 5): 
 ++++ initial state: None 
 ++++ action: None 
 ++++ update: skipped
-2022-01-08 21:01:30,342 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
-2022-01-08 21:01:30,829 INFO app: ++++ Servo Train Switch @ Pin : 7 is started...
-2022-01-08 21:01:31,013 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:31] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:01:36,893 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:36] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:01:39,030 INFO app: ++++ Servo Train Switch @ Pin : 7 is closed...
-2022-01-08 21:01:39,031 INFO app: ++++ delete switch Servo Train Switch @ Pin : 7...
-2022-01-08 21:01:39,038 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:39] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:01:41,610 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:41] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:01:48,697 INFO app: ++++ Servo Train Switch @ Pin : 7 is started...
-2022-01-08 21:01:48,704 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:48] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:01:52,538 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:52] "[37mGET / HTTP/1.1[0m" 200 -
-2022-01-08 21:01:54,612 INFO app: Servo Train Switch @ Pin : 7: 
-++++ initial state: None 
-++++ action: Straight 
-++++ update: 180.0
-2022-01-08 21:01:54,619 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:54] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:01:56,443 INFO app: Servo Train Switch @ Pin : 7: 
-++++ initial state: Straight 
-++++ action: Turn 
-++++ update: 100.0
-2022-01-08 21:01:56,450 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:56] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:01:59,419 INFO app: Relay Train Switch @ Pin : (8, 10): 
+2022-01-10 20:24:21,296 INFO werkzeug:  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+2022-01-10 21:21:56,615 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:56] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-10 21:21:56,989 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:56] "[37mGET /static/style.css HTTP/1.1[0m" 200 -
+2022-01-10 21:21:56,990 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:56] "[37mGET /static/black.png HTTP/1.1[0m" 200 -
+2022-01-10 21:21:56,990 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:56] "[37mGET /static/favicon.ico HTTP/1.1[0m" 200 -
+2022-01-10 21:21:59,216 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:59] "[37mGET /beast/ HTTP/1.1[0m" 200 -
+2022-01-10 21:21:59,322 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:59] "[37mGET /static/trains.jpeg HTTP/1.1[0m" 200 -
+2022-01-10 21:21:59,460 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:59] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
+2022-01-10 21:21:59,576 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:59] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
+2022-01-10 21:21:59,805 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:21:59] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
+2022-01-10 21:22:03,249 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:03] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:04,377 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:04] "[37mGET /about/ HTTP/1.1[0m" 200 -
+2022-01-10 21:22:04,495 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:04] "[37mGET /static/diagram.jpg HTTP/1.1[0m" 200 -
+2022-01-10 21:22:06,462 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:06] "[37mGET /config/ HTTP/1.1[0m" 200 -
+2022-01-10 21:22:11,246 INFO app: Relay Train Switch @ Pin : (8, 10): 
 ++++ initial state: None 
 ++++ action: Straight 
 ++++ update: yg
-2022-01-08 21:01:59,426 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:01:59] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:00,628 INFO app: Relay Train Switch @ Pin : (8, 10): 
+2022-01-10 21:22:11,252 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:11] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:11,364 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:11] "[37mGET /static/green.png HTTP/1.1[0m" 200 -
+2022-01-10 21:22:12,593 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: None 
+++++ action: Straight 
+++++ update: yg
+2022-01-10 21:22:12,598 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:12] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:13,910 INFO app: Relay Train Switch @ Pin : (3, 5): 
 ++++ initial state: Straight 
 ++++ action: Turn 
 ++++ update: br
-2022-01-08 21:02:00,634 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:00] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:01,770 INFO app: Relay Train Switch @ Pin : (3, 5): 
-++++ initial state: None 
+2022-01-10 21:22:13,916 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:13] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:14,070 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:14] "[37mGET /static/red.png HTTP/1.1[0m" 200 -
+2022-01-10 21:22:14,864 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Straight 
 ++++ action: Turn 
 ++++ update: br
-2022-01-08 21:02:01,776 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:01] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:02,917 INFO app: Relay Train Switch @ Pin : (3, 5): 
+2022-01-10 21:22:14,871 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:14] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:15,869 INFO app: Relay Train Switch @ Pin : (8, 10): 
 ++++ initial state: Turn 
 ++++ action: Straight 
 ++++ update: yg
-2022-01-08 21:02:02,924 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:02] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:03,533 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:03] "[37mGET /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:04,437 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is closed...
-2022-01-08 21:02:04,441 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is closed...
-2022-01-08 21:02:04,444 INFO app: ++++ Servo Train Switch @ Pin : 7 is closed...
-2022-01-08 21:02:04,470 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
-2022-01-08 21:02:04,493 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
-2022-01-08 21:02:04,494 INFO app: Relay Train Switch @ Pin : (3, 5): 
-++++ initial state: None 
-++++ action: None 
-++++ update: skipped
-2022-01-08 21:02:04,494 INFO app: Relay Train Switch @ Pin : (8, 10): 
-++++ initial state: None 
-++++ action: None 
-++++ update: skipped
-2022-01-08 21:02:04,496 INFO app: ++++ loaded switches: {'(3, 5)': Relay Train Switch @ Pin : (3, 5), '(8, 10)': Relay Train Switch @ Pin : (8, 10)}
-2022-01-08 21:02:04,504 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:04] "[37mGET /load/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:06,555 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:06] "[37mGET / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:11,360 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is closed...
-2022-01-08 21:02:11,365 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is closed...
-2022-01-08 21:02:11,387 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
-2022-01-08 21:02:11,410 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
-2022-01-08 21:02:11,411 INFO app: Relay Train Switch @ Pin : (3, 5): 
-++++ initial state: None 
-++++ action: None 
-++++ update: skipped
-2022-01-08 21:02:11,411 INFO app: Relay Train Switch @ Pin : (8, 10): 
-++++ initial state: None 
-++++ action: None 
-++++ update: skipped
-2022-01-08 21:02:11,413 INFO app: ++++ loaded switches: {'(3, 5)': Relay Train Switch @ Pin : (3, 5), '(8, 10)': Relay Train Switch @ Pin : (8, 10)}
-2022-01-08 21:02:11,421 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:11] "[37mGET /load/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:18,570 INFO app: Relay Train Switch @ Pin : (3, 5): 
-++++ initial state: None 
+2022-01-10 21:22:15,875 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:15] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:16,859 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Turn 
 ++++ action: Straight 
 ++++ update: yg
-2022-01-08 21:02:18,576 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:18] "[37mPOST / HTTP/1.1[0m" 200 -
-2022-01-08 21:02:22,232 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:22] "[37mGET /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:25,029 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is closed...
-2022-01-08 21:02:25,030 INFO app: ++++ delete switch Relay Train Switch @ Pin : (3, 5)...
-2022-01-08 21:02:25,037 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:25] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:25,561 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is closed...
-2022-01-08 21:02:25,562 INFO app: ++++ delete switch Relay Train Switch @ Pin : (8, 10)...
-2022-01-08 21:02:25,570 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:25] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:30,678 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
-2022-01-08 21:02:30,685 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:30] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:40,285 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
-2022-01-08 21:02:40,292 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:40] "[37mPOST /config/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:41,845 INFO app: ++++ saved switches: {'(3, 5)': Relay Train Switch @ Pin : (3, 5), '(8, 10)': Relay Train Switch @ Pin : (8, 10)}
-2022-01-08 21:02:41,852 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:41] "[37mGET /save/ HTTP/1.1[0m" 200 -
-2022-01-08 21:02:43,816 INFO werkzeug: 10.0.0.237 - - [08/Jan/2022 21:02:43] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:16,865 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:16] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:17,867 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:17,874 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:17] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:18,763 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:18,770 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:18] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:19,909 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: yg
+2022-01-10 21:22:19,915 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:19] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:20,803 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: yg
+2022-01-10 21:22:20,809 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:20] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:21,669 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:21,675 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:21] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:22,519 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:22,527 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:22] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:26,190 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: yg
+2022-01-10 21:22:26,196 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:26] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:27,116 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Turn 
+++++ action: Straight 
+++++ update: yg
+2022-01-10 21:22:27,122 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:27] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:28,078 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:28,083 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:28] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:22:28,949 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: Straight 
+++++ action: Turn 
+++++ update: br
+2022-01-10 21:22:28,955 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:22:28] "[37mPOST / HTTP/1.1[0m" 200 -
+2022-01-10 21:49:17,220 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:17] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-10 21:49:17,272 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:17] "[37mGET /static/style.css HTTP/1.1[0m" 200 -
+2022-01-10 21:49:17,302 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:17] "[37mGET /static/favicon.ico HTTP/1.1[0m" 200 -
+2022-01-10 21:49:17,325 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:17] "[37mGET /static/red.png HTTP/1.1[0m" 200 -
+2022-01-10 21:49:18,945 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:18] "[37mGET /config/ HTTP/1.1[0m" 200 -
+2022-01-10 21:49:20,661 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is closed...
+2022-01-10 21:49:20,666 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is closed...
+2022-01-10 21:49:20,723 INFO app: ++++ Relay Train Switch @ Pin : (8, 10) is started...
+2022-01-10 21:49:20,743 INFO app: ++++ Relay Train Switch @ Pin : (3, 5) is started...
+2022-01-10 21:49:20,744 INFO app: Relay Train Switch @ Pin : (8, 10): 
+++++ initial state: None 
+++++ action: None 
+++++ update: skipped
+2022-01-10 21:49:20,745 INFO app: Relay Train Switch @ Pin : (3, 5): 
+++++ initial state: None 
+++++ action: None 
+++++ update: skipped
+2022-01-10 21:49:20,748 INFO app: ++++ loaded switches: {'(8, 10)': Relay Train Switch @ Pin : (8, 10), '(3, 5)': Relay Train Switch @ Pin : (3, 5)}
+2022-01-10 21:49:20,754 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:20] "[37mGET /load/ HTTP/1.1[0m" 200 -
+2022-01-10 21:49:26,145 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:26] "[37mGET / HTTP/1.1[0m" 200 -
+2022-01-10 21:49:26,248 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:26] "[37mGET /static/black.png HTTP/1.1[0m" 200 -
+2022-01-10 21:49:28,676 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:28] "[37mGET /beast/ HTTP/1.1[0m" 200 -
+2022-01-10 21:49:28,775 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:28] "[37mGET /static/trains.jpeg HTTP/1.1[0m" 200 -
+2022-01-10 21:49:28,898 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:28] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
+2022-01-10 21:49:29,023 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:29] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
+2022-01-10 21:49:29,313 INFO werkzeug: 11.0.0.10 - - [10/Jan/2022 21:49:29] "[37mGET /static/train.mp3 HTTP/1.1[0m" 206 -
