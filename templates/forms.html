@@ -1,3 +1,7 @@
+{% macro total(devices) -%}
+Active Devices: {{ devices.__len__() }}
+{%- endmacro %}
+
 {% macro display(s) -%}
 <pre><p>{{ s }}</p></pre>
 <table>

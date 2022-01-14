@@ -13,8 +13,8 @@
 
 <body>
     
-    <h1>Train Switch Config</h1>
-    Active Switches: {{ devices.__len__() }}
+    <h1>Configuration</h1>
+    {{ forms.total(devices) }}
     <hr />
     {% for key, value in devices.items() %}
     {{ forms.active(value) }}
@@ -31,9 +31,6 @@
     <p style="color:red">{{ message }}</p>
     {% endif %}
     <hr />
-
-    <h2>Available Pins</h2>
-    <pre>{{ pin_pool }}</pre>
 
     <h2>Pinout Quick Reference</h2>
     <pre>{{ pinout|safe }}</pre>

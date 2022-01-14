@@ -2,9 +2,9 @@
 from flask import Flask, render_template, request
 
 from python.utils import (
-	setup_logging, read_logs, check_working_directory, PICKLE_PATH, PINOUT,
+	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg
+	construct_from_cfg, custom_pinout
 )
 from python.train_switch import CLS_MAP
 
@@ -60,7 +60,7 @@ def save():
 		devices=devices, 
 		message=message,
 		pin_pool=sort_pool(pin_pool), 
-		pinout=PINOUT
+		pinout=custom_pinout(pin_pool)
 	)
 
 @app.route('/load/', methods = ['GET'])
@@ -75,7 +75,7 @@ def load():
 				devices=devices,
 				message=message,
 				pin_pool=sort_pool(pin_pool),
-				pinout=PINOUT
+				pinout=custom_pinout(pin_pool)
 			) 
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
@@ -88,7 +88,7 @@ def load():
 		devices=devices,
 		message=message,
 		pin_pool=sort_pool(pin_pool),
-		pinout=PINOUT
+		pinout=custom_pinout(pin_pool)
 	)
 
 @app.route('/config/', methods = ['GET', 'POST'])
@@ -110,7 +110,7 @@ def config():
 					'config.html',
 					devices=devices,
 					pin_pool=sort_pool(pin_pool),
-					pinout=PINOUT
+					pinout=custom_pinout(pin_pool)
 				)
 		########################################################################
 		# add pin logic
@@ -127,7 +127,7 @@ def config():
 					devices=devices, 
 					error=error,
 					pin_pool=sort_pool(pin_pool),
-					pinout=PINOUT
+					pinout=custom_pinout(pin_pool)
 					)
 
 			# parse pin entries
@@ -144,7 +144,7 @@ def config():
 						devices=devices, 
 						error=error, 
 						pin_pool=sort_pool(pin_pool),
-						pinout=PINOUT
+						pinout=custom_pinout(pin_pool)
 					)
 
 			if pin2:
@@ -157,7 +157,7 @@ def config():
 						devices=devices, 
 						error=error,
 						pin_pool=sort_pool(pin_pool),
-						pinout=PINOUT
+						pinout=custom_pinout(pin_pool)
 					)
 
 			if pin1 == pin2:
@@ -167,7 +167,7 @@ def config():
 					devices=devices, 
 					error=error,
 					pin_pool=sort_pool(pin_pool),
-					pinout=PINOUT
+					pinout=custom_pinout(pin_pool)
 				)
 
 			# servo only needs one pin, relay two pins
@@ -186,7 +186,7 @@ def config():
 							devices=devices, 
 							error=error,
 							pin_pool=sort_pool(pin_pool),
-							pinout=PINOUT
+							pinout=custom_pinout(pin_pool)
 						)
 			try:
 				added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
@@ -197,7 +197,7 @@ def config():
 					devices=devices, 
 					error=error, 
 					pin_pool=sort_pool(pin_pool),
-					pinout=PINOUT
+					pinout=custom_pinout(pin_pool)
 				)
 			devices.update({str(pins): added})  # add to global container
 			[pin_pool.remove(p) for p in added.pin_list]  # add used pins
@@ -206,7 +206,7 @@ def config():
 		devices=devices, 
 		error = error,
 		pin_pool=sort_pool(pin_pool),
-		pinout=PINOUT
+		pinout=custom_pinout(pin_pool)
 		)
 
 if __name__ == '__main__':

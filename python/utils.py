@@ -4,6 +4,8 @@ import os
 import getpass
 import subprocess
 import pickle
+import io
+import sys
 from typing import Union
 from python.train_switch import CLS_MAP
 
@@ -15,9 +17,7 @@ WORKING_DIRECTORY = os.path.join(
 
 PINOUT = subprocess.check_output('pinout --monochrome', shell=True)\
     .decode("utf-8") \
-    .replace('\n', '<br>') \
-    .replace(' ', '&nbsp;') \
-    .replace('\t', '&emsp;')
+    .replace(' ', '&nbsp;')
 
 """
 J8:
@@ -168,3 +168,28 @@ def update_pin_pool(devices: dict) -> set:
                 )
             pin_pool.remove(p)
     return pin_pool
+
+def custom_pinout(
+    pin_pool: set,
+    total_pins: int = 40,
+    pinout: str = PINOUT) -> str:
+    """Replaces pin characters with (&) if not found."""
+    all_pins = set(list(range(1, 41)))
+    replace_pins = all_pins - pin_pool
+
+    for pin in pin_pool:
+        find_text = "(" + str(pin) + ")"
+        replace = f"<mark>{find_text}</mark>"
+        pinout = pinout.replace(find_text, replace)
+
+    for pin in replace_pins:
+        find_text = "(" + str(pin) + ")"
+        if len(find_text) == 3:
+            replace = "(X)"
+        elif len(find_text) == 4:
+            replace = "(X) "
+        else:
+            raise ValueError("Text must be length 3 or 4.")
+        pinout = pinout.replace(find_text, replace)
+    pinout += "\n<mark>(pin)</mark> is available. (X) is unavailable."
+    return pinout

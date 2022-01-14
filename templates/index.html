@@ -11,9 +11,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
-    
-    <h1>Train Switch Control</h1>
-    Active Switches: {{ devices.__len__() }}
+    <h1>Control Page</h1>
+    {{ forms.total(devices) }}
     <hr />
     <!-- Loop through all switches and display controls -->
     {% for key, value in devices.items() %}

@@ -116,12 +116,12 @@ class BaseTrainSwitch:
             )
 
     @abstractmethod
-    def _close(self) -> None:
+    def __del__(self) -> None:
         pass
 
     def close(self) -> None:
         """Close a connection with a switch."""
-        self._close()
+        self.__del__()
         
         if self.logger:
             self.logger.info(f"++++ {self} is closed...")
@@ -191,7 +191,7 @@ class ServoTrainSwitch(BaseTrainSwitch):
         self.servo.angle = angle
         return angle
 
-    def _close(self) -> None:
+    def __del__(self) -> None:
         self.servo.close()
 
 class RelayTrainSwitch(BaseTrainSwitch):
@@ -274,7 +274,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
             self.yg_relay.off()
         return conf
 
-    def _close(self) -> None:
+    def __del__(self) -> None:
         self.yg_relay.close()
         self.br_relay.close()
 
