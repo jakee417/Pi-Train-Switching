@@ -25,47 +25,49 @@ This project demonstrates how to control Lionel Train Switches from a Raspberry 
 - [Connecting remote switch to the control relay remote switch](https://www.dexterindustries.com/Arduberry/example-projects-with-arduberry-and-raspberry-pi/lionel-train-switch-control-with-a-raspberry-pi-2/)
 - [Connecting `RPi` to control relay](https://www.electronicshub.org/control-a-relay-using-raspberry-pi/)
 
+## System Services
+Since our project relies upon the `pigpiod` pin factory, start this [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)):
+```bash
+sudo systemctl enable pigpiod
+```
+
 ## Installation
 ```bash
 cd ~
 git clone https://github.com/jakee417/Pi-Train-Switching.git
 cd Pi-Train-Switching
-nano train_switch.service
-# Find "EDIT USER HERE" and add your username
+# Now run the setup helper
+./setup.sh
 ```
-## Services
-Since our project relies upon the `pigpiod` pin factory, start this [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)):
+A successful installation looks like:
 ```bash
-sudo systemctl enable pigpiod
-```
-Now start the train service, `train_switch.service`
-```bash
-cd /home/user/Pi-Train-Switching
-sudo cp train_switch.service /etc/systemd/system/train_switch.service
-sudo systemctl enable train_switch.service
-```
-Verify the service is running with,
-```bash
-sudo systemctl status train_switch.service
-```
-You should see,
-```
+pi@raspberrypi:~/Pi-Train-Switching $ ./setup.sh 
+++++ Setting up train_switch.service in: /home/pi/.config/systemd/user
+++++ Enabling train_switch.service
+++++ Starting train_switch.service
+++++ train_switch.service status:
 ● train_switch.service - Train Switch
-     Loaded: loaded (/etc/systemd/system/train_switch.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2022-01-06 21:20:10 HST; 1h 2min ago
-   Main PID: 9313 (python3)
+     Loaded: loaded (/home/pi/.config/systemd/user/train_switch.service; enabled; vendor preset: enabled)
+     Active: active (running) since Sat 2022-01-15 20:55:46 HST; 9min ago
+   Main PID: 8522 (python3)
       Tasks: 5 (limit: 409)
-        CPU: 2.438s
-     CGroup: /system.slice/train_switch.service
-             └─9313 /usr/bin/python3 app.py
+        CPU: 3.658s
+     CGroup: /user.slice/user-1001.slice/user@1001.service/app.slice/train_switch.service
+             └─8522 /usr/bin/python3 app.py
 
-Jan 06 21:20:10 raspberrypi systemd[1]: Started Train Switch.
-Jan 06 21:20:11 raspberrypi python3[9313]:  * Serving Flask app "app" (lazy loading)
-Jan 06 21:20:11 raspberrypi python3[9313]:  * Environment: production
-Jan 06 21:20:11 raspberrypi python3[9313]:    WARNING: This is a development server. Do not use it in a production deployment.
-Jan 06 21:20:11 raspberrypi python3[9313]:    Use a production WSGI server instead.
-Jan 06 21:20:11 raspberrypi python3[9313]:  * Debug mode: off
+Jan 15 20:55:46 raspberrypi systemd[644]: Started Train Switch.
+Jan 15 20:55:50 raspberrypi python3[8522]:  * Serving Flask app "app" (lazy loading)
+Jan 15 20:55:50 raspberrypi python3[8522]:  * Environment: production
+Jan 15 20:55:50 raspberrypi python3[8522]:    WARNING: This is a development server. Do not use it in a production deployment.
+Jan 15 20:55:50 raspberrypi python3[8522]:    Use a production WSGI server instead.
+Jan 15 20:55:50 raspberrypi python3[8522]:  * Debug mode: off
 ```
+
+If this fails due `User Service`, then ensure this line,
+```bash
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+```
+is found in the `~/.bashrc` file followed by a system reboot, `sudo reboot`.
 
 ## Viewing the Web Server
 - First, ensure the `RPi` and client machine (laptop, cellphone tablet, etc.) are on the same `WiFi` network. 
