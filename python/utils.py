@@ -182,14 +182,5 @@ def custom_pinout(
         replace = f"<mark>{find_text}</mark>"
         pinout = pinout.replace(find_text, replace)
 
-    for pin in replace_pins:
-        find_text = "(" + str(pin) + ")"
-        if len(find_text) == 3:
-            replace = "(X)"
-        elif len(find_text) == 4:
-            replace = "(X) "
-        else:
-            raise ValueError("Text must be length 3 or 4.")
-        pinout = pinout.replace(find_text, replace)
-    pinout += "\n<mark>(pin)</mark> is available. (X) is unavailable."
+    pinout += "\n<mark>(pin)</mark> is available."
     return pinout

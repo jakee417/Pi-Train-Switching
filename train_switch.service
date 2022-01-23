@@ -10,5 +10,4 @@ StandardError=inherit
 Restart=always
 
 [Install]
-WantedBy=multi-user.target
-Alias=train_switch.service
+WantedBy=default.target
