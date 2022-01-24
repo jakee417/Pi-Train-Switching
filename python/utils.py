@@ -111,13 +111,13 @@ def read_logs() -> str:
     return logs
 
 def save_cfg(devices: dict) -> str:
-    """Save and return a message."""
+    """Save and return a serialized message."""
     message = None
     try:
-        # serialize a cfg
+        # serialize a cfg.
         cfg = {
-            str(pin): {'pin': s.pin, 'state': s.state, 'name': s.name}
-            for pin, s in devices.items()
+            str(pin): d.to_json()
+            for pin, d in devices.items()
         }
         pickle.dump(cfg, open(PICKLE_PATH, 'wb'))
         message = "Saved Configuration."

@@ -57,6 +57,21 @@ class BaseTrainSwitch:
     def __repr__(self):
         return f"{self.name} @ Pin : {self.pin}"
 
+    def to_json(self) -> dict:
+        """Converts an object to a seralized representation.
+        
+        Returns:
+            Serialized reprsentation including:
+                - pin
+                - state
+                - name
+        """
+        return {
+            'pin': self.pin,
+            'state': self.state,
+            'name': self.name
+        }
+
     def log(self, initial_state: str, action: str, update: object) -> None:
         """Logs update message"""
         if self.logger:
@@ -284,48 +299,3 @@ CLS_MAP = {
 	'Relay Train Switch': RelayTrainSwitch,
 	'Servo Train Switch': ServoTrainSwitch
 }
-
-# FIXME: Not using this for now...
-# class GPIOManualTrainSwitch(BaseTrainSwitch):
-#     def __init__(self, **kwargs) -> None:
-#         """ Servo class wrapping the RPi.GPIO class for manual train switches.
-        
-#         We followed a great demo from youtuber `ExplainingComputers` to 
-#         implement our first Rasperry Pi GPIO Train Switch.
-
-#         References:
-#             https://www.explainingcomputers.com/pi_servos_video.html
-
-#         Notes:
-#             The default pin factory for this device is:
-#             `RPi.GPIO`
-#             and cannot be mixed with other pin factories:
-#             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
-#         """
-#         from RPi import GPIO
-#         super(GPIOManualTrainSwitch, self).__init__(**kwargs)
-#         GPIO.setmode(GPIO.BOARD)
-#         GPIO.setup(self.pin, GPIO.OUT)
-#         self.servo = GPIO.PWM(self.pin, PULSE)
-#         self.servo.start(0)
-
-#     @staticmethod
-#     def angle_to_duty(angle: float):
-#         """Map a angle to a duty cycle
-        
-#         Notes:
-#             0°: 2% duty cycle
-#             180°: 12% duty cycle
-#         """
-#         return 2 + angle / 18
-
-#     def _action(self, action: str) -> object:
-#         angle = self.action_to_angle(action)
-#         self.servo.ChangeDutyCycle(self.angle_to_duty(angle))
-#         time.sleep(SLEEP)  # wait to stop
-#         self.servo.ChangeDutyCycle(0)  # stop
-#         return angle
-
-#     def _close(self) -> None:
-#         """Close a connection with a switch."""
-#         self.servo.stop()

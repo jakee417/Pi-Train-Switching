@@ -1,4 +1,6 @@
 """Web server for train switches"""
+# Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
+
 from flask import Flask, render_template, request
 
 from python.utils import (
