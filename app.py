@@ -6,7 +6,7 @@ from flask import Flask, render_template, request
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout
+	construct_from_cfg, custom_pinout, devices_to_json
 )
 from python.train_switch import CLS_MAP
 
@@ -40,6 +40,11 @@ def index():
 			devices[pin].action(action)  # perform action
 	return render_template('index.html', devices=devices)
 
+@app.route('/action/<pins>/<action>/')
+def action_post(pins: tuple, action: str):
+	devices[pins].action(action)
+	return devices_to_json(devices)
+	
 @app.route('/log/', methods = ['GET'])
 def log():
 	return render_template('log.html', log=read_logs())

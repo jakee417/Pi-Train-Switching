@@ -110,15 +110,19 @@ def read_logs() -> str:
     logs = ' '.join(lines).strip()
     return logs
 
+def devices_to_json(devices: dict) -> dict:
+    """Returns a serialized version of devices."""
+    return {
+        str(pin): d.to_json()
+        for pin, d in devices.items()
+    }
+
 def save_cfg(devices: dict) -> str:
     """Save and return a serialized message."""
     message = None
     try:
         # serialize a cfg.
-        cfg = {
-            str(pin): d.to_json()
-            for pin, d in devices.items()
-        }
+        cfg = devices_to_json(devices)
         pickle.dump(cfg, open(PICKLE_PATH, 'wb'))
         message = "Saved Configuration."
     except Exception as e:
@@ -130,7 +134,7 @@ def load_cfg(path: str) -> Union[dict, str]:
     cfg = None
     message = None
     if not os.path.exists(path):
-	    message = "No configuration to load."
+        message = "No configuration to load."
     else:
         # read a configuration
         cfg = pickle.load(open(path, 'rb'))
