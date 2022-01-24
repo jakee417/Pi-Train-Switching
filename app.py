@@ -229,13 +229,6 @@ def config():
 def status() -> dict:
 	return devices_to_json(devices)
 
-# @app.route('/status/<pins>', methods=['GET'])
-# def status(pins: str):
-# 	"""Returns the status of the devices in json form."""
-# 	global devices
-# 	pins = convert_csv_tuples(pins)
-# 	return devices_to_json({pins: devices[pins]})
-
 @app.route('/action/<string:pins>/<string:action>')
 def action(pins: str, action: str) -> dict:
 	""" Perform an action on a specified set of pins.
@@ -248,8 +241,8 @@ def action(pins: str, action: str) -> dict:
 		(8, 10), straight -> /action/?pins=8,10&action='straight'
 	"""
 	global devices
-	pins = str(convert_csv_tuples(pins))
-	devices[pins].action(action.lower())
+	pins = convert_csv_tuples(pins)
+	devices[str(pins)].action(action.lower())
 	return devices_to_json(devices)
 
 
