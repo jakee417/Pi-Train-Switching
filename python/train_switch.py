@@ -23,7 +23,7 @@ class BaseTrainSwitch:
         """
         self.__name__ = 'Base Train Switch'
         if isinstance(pin, tuple):
-            pin.sort()  # always sort the pins 
+            pin = sorted(pin)  # always sort the pins 
         self.__pin = pin
         self.__state = None
         self.logger = logger
