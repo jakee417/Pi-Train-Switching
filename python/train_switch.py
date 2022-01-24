@@ -22,6 +22,8 @@ class BaseTrainSwitch:
             verbose: Either True or False. Verbosity of object.
         """
         self.__name__ = 'Base Train Switch'
+        if isinstance(pin, tuple):
+            pin.sort()  # always sort the pins 
         self.__pin = pin
         self.__state = None
         self.logger = logger

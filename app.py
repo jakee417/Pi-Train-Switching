@@ -248,7 +248,7 @@ def action(pins: str, action: str) -> dict:
 		(8, 10), straight -> /action/?pins=8,10&action='straight'
 	"""
 	global devices
-	pins = convert_csv_tuples(pins)
+	pins = str(convert_csv_tuples(pins))
 	devices[pins].action(action.lower())
 	return devices_to_json(devices)
 
