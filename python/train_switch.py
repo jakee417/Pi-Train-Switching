@@ -86,8 +86,8 @@ class BaseTrainSwitch:
     def action_to_angle(action: str) -> int:
         """Maps an action to a legal action."""
         mapping = {
-        'Turn': 100.0,
-        'Straight': 180.0
+        'turn': 100.0,
+        'straight': 180.0
         }
         angle = mapping.get(action, None)
 
@@ -110,7 +110,7 @@ class BaseTrainSwitch:
         state of the train switch.
 
         Args:
-            action: One of `Straight` or `Turn`
+            action: One of `straight` or `turn`
         """
         if self.state == action:
             self.log(self.state, action, 'skipped')
@@ -256,8 +256,8 @@ class RelayTrainSwitch(BaseTrainSwitch):
     def action_to_conf(action: str):
         """ Map an action to a relay configuration"""
         mapping = {
-            'Turn': 'br',
-            'Straight': 'yg',
+            'turn': 'br',
+            'straight': 'yg',
         }
 
         conf = mapping.get(action, None)

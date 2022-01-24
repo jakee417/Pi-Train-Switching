@@ -1,15 +1,20 @@
 """Web server for train switches"""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
 
+from os import strerror
 from flask import Flask, render_template, request
 
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout, devices_to_json
+	construct_from_cfg, custom_pinout, devices_to_json, convert_csv_tuples
 )
 from python.train_switch import CLS_MAP
 
+
+########################################################################
+# Setup
+########################################################################
 check_working_directory()
 app = Flask(__name__)
 setup_logging()
@@ -33,17 +38,16 @@ else:
 	})
 	pin_pool = GPIO_PINS.copy() - set([3, 5, 7])
 
+
+########################################################################
+# HTML Return Methods
+########################################################################
 @app.route('/', methods = ['POST', 'GET'])
 def index():
 	if request.method == 'POST':
 		for pin, action in request.form.items():
-			devices[pin].action(action)  # perform action
+			devices[pin].action(action.lower())  # perform action
 	return render_template('index.html', devices=devices)
-
-@app.route('/action/<pins>/<action>/')
-def action_post(pins: tuple, action: str):
-	devices[pins].action(action)
-	return devices_to_json(devices)
 	
 @app.route('/log/', methods = ['GET'])
 def log():
@@ -100,6 +104,8 @@ def load():
 
 @app.route('/config/', methods = ['GET', 'POST'])
 def config():
+	global devices
+	global pin_pool
 	error = None
 	if request.method == 'POST':
 		########################################################################
@@ -215,6 +221,38 @@ def config():
 		pin_pool=sort_pool(pin_pool),
 		pinout=custom_pinout(pin_pool)
 		)
+
+########################################################################
+# JSON Return Methods
+########################################################################
+@app.route('/status/<pins>', methods=['GET'])
+def status(pins: str):
+	"""Returns the status of the devices in json form."""
+	global devices
+	if pins:
+		pins = convert_csv_tuples(pins)
+		return devices_to_json({pins: devices[pins]})
+	return devices_to_json(devices)
+
+@app.route('/action/', methods=['POST'])
+def action():
+	""" Perform an action on a specified set of pins.
+
+	Args:
+		pins (str): comma seperated list of pin values
+		action (str): an action in string representation
+
+	Example:
+		(8, 10), straight -> /action/?pins=8,10&action='straight'
+	"""
+	global devices
+	if request.method == 'POST':
+		pins = request.args.get('pins', None)
+		pins = convert_csv_tuples(pins)
+		action = request.args.get('action', None)
+		devices[pins].action(action.lower())
+	return devices_to_json(devices)
+
 
 if __name__ == '__main__':
 	# Run the app on 0.0.0.0 which is visible on the local network
