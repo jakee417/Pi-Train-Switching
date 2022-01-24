@@ -225,14 +225,17 @@ def config():
 ########################################################################
 # JSON Return Methods
 ########################################################################
+@app.route('/status/', methods = ['GET'])
+def status():
+	return devices_to_json(devices)
+
+
 @app.route('/status/<pins>', methods=['GET'])
 def status(pins: str):
 	"""Returns the status of the devices in json form."""
 	global devices
-	if pins:
-		pins = convert_csv_tuples(pins)
-		return devices_to_json({pins: devices[pins]})
-	return devices_to_json(devices)
+	pins = convert_csv_tuples(pins)
+	return devices_to_json({pins: devices[pins]})
 
 @app.route('/action/', methods=['POST'])
 def action():

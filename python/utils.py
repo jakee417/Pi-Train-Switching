@@ -193,4 +193,4 @@ def convert_csv_tuples(inputs: str) -> tuple:
     inputs = inputs.split(',')
     inputs = [int(input) for input in inputs]
     inputs.sort()
-    return tuple(pins)
+    return tuple(inputs)
