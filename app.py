@@ -44,6 +44,7 @@ else:
 ########################################################################
 @app.route('/', methods = ['POST', 'GET'])
 def index():
+	global devices
 	if request.method == 'POST':
 		for pin, action in request.form.items():
 			devices[pin].action(action.lower())  # perform action
@@ -238,7 +239,7 @@ def action(pins: str, action: str) -> dict:
 		action (str): an action in string representation
 
 	Example:
-		(8, 10), straight -> /action/?pins=8,10&action='straight'
+		(8, 10), straight -> /action/8,10/straight
 	"""
 	global devices
 	pins = convert_csv_tuples(pins)

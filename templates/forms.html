@@ -8,7 +8,7 @@ Active Devices: {{ devices.__len__() }}
     <tr>
         <!-- Show submit buttons that change with the switch property -->
         <form action="{{url_for("index")}}" method="post">
-            {% if s.state == "Turn": %}
+            {% if s.state == "turn": %}
             <input type="submit" value="Turn" name="{{ s.pin }}" class="clicked">
             {% else %}
             <input type="submit" value="Turn" name="{{ s.pin }}" class="unclicked">
@@ -17,7 +17,7 @@ Active Devices: {{ devices.__len__() }}
     </tr>
     <tr>
         <form action="{{url_for("index")}}" method="post">
-            {% if s.state == "Straight": %}
+            {% if s.state == "straight": %}
             <input type="submit" value="Straight" name="{{ s.pin }}" class="clicked">
             {% else %}
             <input type="submit" value="Straight" name="{{ s.pin }}" class="unclicked">
@@ -28,9 +28,9 @@ Active Devices: {{ devices.__len__() }}
         <!-- Show an indicator light that matches the physical train switch -->
         <!-- Image credit: https://en.wikipedia.org/wiki/Bela_Ski_Resort -->
         [
-        {% if s.state == "Straight": %}
+        {% if s.state == "straight": %}
         <img src="/static/green.png" alt="straight" width="16" height="16" title="Straight">
-        {% elif s.state == "Turn" %}
+        {% elif s.state == "turn" %}
         <img src="/static/red.png" alt="turn" width="16" height="16" title="Turn">
         {% else: %}
         <img src="/static/black.png" alt="uncontrolled" width="16" height="16" title="Uncontrolled">
