@@ -229,13 +229,12 @@ def config():
 def status():
 	return devices_to_json(devices)
 
-
-@app.route('/status/<pins>', methods=['GET'])
-def status(pins: str):
-	"""Returns the status of the devices in json form."""
-	global devices
-	pins = convert_csv_tuples(pins)
-	return devices_to_json({pins: devices[pins]})
+# @app.route('/status/<pins>', methods=['GET'])
+# def status(pins: str):
+# 	"""Returns the status of the devices in json form."""
+# 	global devices
+# 	pins = convert_csv_tuples(pins)
+# 	return devices_to_json({pins: devices[pins]})
 
 @app.route('/action/', methods=['POST'])
 def action():
