@@ -226,7 +226,7 @@ def config():
 # JSON Return Methods
 ########################################################################
 @app.route('/status/', methods = ['GET'])
-def status():
+def status() -> dict:
 	return devices_to_json(devices)
 
 # @app.route('/status/<pins>', methods=['GET'])
@@ -236,8 +236,8 @@ def status():
 # 	pins = convert_csv_tuples(pins)
 # 	return devices_to_json({pins: devices[pins]})
 
-@app.route('/action/', methods=['POST'])
-def action():
+@app.route('/action/<string:pins>/<string:action>')
+def action(pins: str, action: str) -> dict:
 	""" Perform an action on a specified set of pins.
 
 	Args:
@@ -248,11 +248,8 @@ def action():
 		(8, 10), straight -> /action/?pins=8,10&action='straight'
 	"""
 	global devices
-	if request.method == 'POST':
-		pins = request.args.get('pins', None)
-		pins = convert_csv_tuples(pins)
-		action = request.args.get('action', None)
-		devices[pins].action(action.lower())
+	pins = convert_csv_tuples(pins)
+	devices[pins].action(action.lower())
 	return devices_to_json(devices)
 
 
