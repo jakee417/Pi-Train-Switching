@@ -44,7 +44,7 @@ Active Devices: {{ devices.__len__() }}
 <table>
     <tr>
         <td>
-            <form action="{{url_for("config")}}" method="post">
+            <form action="{{ url_for("config") }}" method="post">
                 <button class="btn" value="delete" name="{{ s.pin }}">
                     <i class="fa fa-close"></i>
                 </button>
@@ -94,23 +94,6 @@ function submitForm(){
             {% endfor %}
             </select>
             </form> 
-        </td>
-    </tr>
-</table>
-{%- endmacro %}
-
-{% macro active(s) -%}
-<table>
-    <tr>
-        <td>
-            <form action="{{url_for("config")}}" method="post">
-                <button class="btn" value="delete" name="{{ s.pin }}">
-                    <i class="fa fa-close"></i>
-                </button>
-            </form> 
-        </td>
-        <td>
-            <pre>{{ s }}</pre>
         </td>
     </tr>
 </table>

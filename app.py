@@ -3,11 +3,12 @@
 
 from os import strerror
 from flask import Flask, render_template, request
+from flask.views import MethodView
 
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout, devices_to_json, convert_csv_tuples
+	construct_from_cfg, custom_pinout, devices_to_json
 )
 from python.train_switch import CLS_MAP
 
@@ -29,7 +30,7 @@ else:
 
 	# Now add one servo and one relay switch as default
 	devices.update({
-		str(pin): CLS_MAP['servo']( pin=pin, logger=app.logger) 
+		str(pin): CLS_MAP['servo'](pin=pin, logger=app.logger) 
 		for _, pin in enumerate([7])
 	})
 	devices.update({
@@ -40,7 +41,7 @@ else:
 
 
 ########################################################################
-# HTML Return Methods
+# HTML return methods
 ########################################################################
 @app.route('/', methods = ['POST', 'GET'])
 def index():
@@ -50,19 +51,19 @@ def index():
 			devices[pin].action(action.lower())  # perform action
 	return render_template('index.html', devices=devices)
 	
-@app.route('/log/', methods = ['GET'])
+@app.route('/log/')
 def log():
 	return render_template('log.html', log=read_logs())
 
-@app.route('/about/', methods = ['GET'])
+@app.route('/about/')
 def about():
 	return render_template('about.html')
 
-@app.route('/beast/', methods = ['GET'])
+@app.route('/beast/')
 def beast():
 	return render_template('beast.html')
 
-@app.route('/save/', methods = ['GET'])
+@app.route('/save/')
 def save():
 	global devices
 	message = save_cfg(devices)
@@ -75,7 +76,7 @@ def save():
 		pinout=custom_pinout(pin_pool)
 	)
 
-@app.route('/load/', methods = ['GET'])
+@app.route('/load/')
 def load():
 	global devices
 	global pin_pool
@@ -224,27 +225,65 @@ def config():
 		)
 
 ########################################################################
-# JSON Return Methods
+# RESTful API (JSON return types)
 ########################################################################
-@app.route('/status/', methods = ['GET'])
-def status() -> dict:
-	return devices_to_json(devices)
 
-@app.route('/action/<string:pins>/<string:action>')
-def action(pins: str, action: str) -> dict:
-	""" Perform an action on a specified set of pins.
+class DevicesAPI(MethodView):
 
-	Args:
-		pins (str): comma seperated list of pin values
-		action (str): an action in string representation
+	@staticmethod
+	def convert_csv_tuples(inputs: str) -> tuple:
+		inputs = inputs.split(',')
+		inputs = [int(input) for input in inputs]
+		inputs.sort()
+		return tuple(inputs)
 
-	Example:
-		(8, 10), straight -> /action/8,10/straight
-	"""
-	global devices
-	pins = convert_csv_tuples(pins)
-	devices[str(pins)].action(action.lower())
-	return devices_to_json(devices)
+	def get(self, pins: str) -> dict:
+		"""Gets information about many devices, or one device."""
+		if pins is None:
+			return devices_to_json(devices)
+		else:
+			pins = self.convert_csv_tuples(pins)
+			return devices_to_json({pins: devices[str(pins)]})
+
+	def post(self, pins: str, device_type: str) -> dict:
+		"""Adds a new device."""
+		device_type = CLS_MAP.get(device_type, None)
+		
+		# device type must be legal
+		if device_type:
+			pins = self.convert_csv_tuples(pins)
+
+			# pins must be available and not the same
+			if all([p in pin_pool for p in pins]) and len(set(pins))==len(pins):
+				added = device_type(pin=pins, logger=app.logger)
+				devices.update({str(pins): added})  # add to global container
+				[pin_pool.remove(p) for p in added.pin_list]  # remove availability
+
+		return devices_to_json(devices)
+	
+	def delete(self, pins: str) -> dict:
+		"""Deletes a device."""
+		pins = self.convert_csv_tuples(pins)
+		deleted = devices.pop(str(pins), None)
+		if deleted:
+			deleted.close()
+
+			# add the pins back into the pool
+			[pin_pool.add(p) for p in deleted.pin_list]
+
+		return devices_to_json(devices)
+
+	def put(self, pins: str, action: str) -> dict:
+		"""Updates the state of a device."""
+		pins = self.convert_csv_tuples(pins)
+		devices[str(pins)].action(action.lower())
+		return devices_to_json(devices)
+
+device_view = DevicesAPI.as_view('devices_api')
+app.add_url_rule('/devices/', defaults={'pins': None}, view_func=device_view, methods=['GET',])
+app.add_url_rule('/devices/<string:pins>', view_func=device_view, methods=['GET', 'DELETE'])
+app.add_url_rule('/devices/<string:pins>/<string:device_type>', view_func=device_view, methods=['POST',])
+app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view, methods=['PUT',])
 
 
 if __name__ == '__main__':
