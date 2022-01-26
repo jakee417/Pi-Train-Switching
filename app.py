@@ -8,7 +8,7 @@ from flask.views import MethodView
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout, devices_to_json
+	construct_from_cfg, custom_pinout, devices_to_json, convert_csv_tuples
 )
 from python.train_switch import CLS_MAP
 
@@ -43,7 +43,7 @@ else:
 ########################################################################
 # HTML return methods
 ########################################################################
-@app.route('/', methods = ['POST', 'GET'])
+@app.route('/', methods = ['GET', 'POST'])
 def index():
 	global devices
 	if request.method == 'POST':
@@ -104,109 +104,64 @@ def load():
 		pinout=custom_pinout(pin_pool)
 	)
 
-@app.route('/config/', methods = ['GET', 'POST'])
+@app.route('/config/')
 def config():
 	global devices
 	global pin_pool
+	return render_template(
+		'config.html',
+		devices=devices,
+		pin_pool=sort_pool(pin_pool),
+		pinout=custom_pinout(pin_pool)
+		)
+
+@app.route('/config_delete/<string:pins>', methods = ['POST',])
+def config_delete(pins: str):
+	global devices
+	global pin_pool
+	pins = convert_csv_tuples(pins)
+	deleted = devices.pop(str(pins), None)
+	if deleted:
+		deleted.close()  # close out any used pins
+
+		# add the pins back into the pool
+		[pin_pool.add(p) for p in deleted.pin_list]
+	return render_template(
+		'config.html',
+		devices=devices,
+		pin_pool=sort_pool(pin_pool),
+		pinout=custom_pinout(pin_pool)
+	)			
+
+@app.route('/config/', methods = ['POST'])
+def config_load():
+	global devices
+	global pin_pool
 	error = None
-	if request.method == 'POST':
-		########################################################################
-		# remove pin logic
-		########################################################################
-		for pin, action in request.form.items():
-			if pin in devices and action == 'delete':
-				deleted = devices.pop(pin)
-				deleted.close()  # close out any used pins
-
-				# add the pins back into the pool
-				[pin_pool.add(p) for p in deleted.pin_list]
-				app.logger.info(f'++++ {action} switch {deleted}...')
-				return render_template(
-					'config.html',
-					devices=devices,
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
-				)
-		########################################################################
-		# add pin logic
-		########################################################################
-		if ('pin1' in request.form
-			and 'pin2' in request.form 
-			and 'type' in request.form):
-			# parse switch type entry
-			switch_type = request.form.get('type', None)
-			if switch_type not in list(CLS_MAP.keys()):
-				error = f"{switch_type} is not a valid device type."
-				return render_template(
-					'config.html', 
-					devices=devices, 
-					error=error,
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
-					)
-
-			# parse pin entries
-			pin1 = request.form.get('pin1', None)
-			pin2 = request.form.get('pin2', None)
-
-			if pin1:
-				try:
-					pin1 = int(pin1)
-				except Exception as e:
-					error = f"while parsing pin 1, {e}."
-					return render_template(
-						'config.html', 
-						devices=devices, 
-						error=error, 
-						pin_pool=sort_pool(pin_pool),
-						pinout=custom_pinout(pin_pool)
-					)
-
-			if pin2:
-				try:
-					pin2 = int(pin2)
-				except Exception as e:
-					error = f"while parsing pin 2, {e}."
-					return render_template(
-						'config.html', 
-						devices=devices, 
-						error=error,
-						pin_pool=sort_pool(pin_pool),
-						pinout=custom_pinout(pin_pool)
-					)
-
-			if pin1 == pin2:
-				error = f"pins cannot be the same. Found {pin1} and {pin2}"
-				return render_template(
-					'config.html', 
-					devices=devices, 
-					error=error,
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
+	if ('pin1' in request.form
+		and 'pin2' in request.form 
+		and 'type' in request.form):
+		# parse switch type entry
+		switch_type = request.form.get('type', None)
+		if switch_type not in list(CLS_MAP.keys()):
+			error = f"{switch_type} is not a valid device type."
+			return render_template(
+				'config.html', 
+				devices=devices, 
+				error=error,
+				pin_pool=sort_pool(pin_pool),
+				pinout=custom_pinout(pin_pool)
 				)
 
-			# servo only needs one pin, relay two pins
-			pins = pin1 if switch_type == 'servo' else (pin1, pin2)
+		# parse pin entries
+		pin1 = request.form.get('pin1', None)
+		pin2 = request.form.get('pin2', None)
 
-			# ensure all pins are available for use
-			if isinstance(pins, int):
-				pin_list = [pins]
-			else:
-				pin_list = list(pins)
-			for p in pin_list:
-				if p not in pin_pool:
-					error = f": pin {p} is not available."
-					return render_template(
-							'config.html', 
-							devices=devices, 
-							error=error,
-							pin_pool=sort_pool(pin_pool),
-							pinout=custom_pinout(pin_pool)
-						)
+		if pin1:
 			try:
-				added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
+				pin1 = int(pin1)
 			except Exception as e:
-				error = f"while trying to construct a switch, {e}."
+				error = f"while parsing pin 1, {e}."
 				return render_template(
 					'config.html', 
 					devices=devices, 
@@ -214,8 +169,61 @@ def config():
 					pin_pool=sort_pool(pin_pool),
 					pinout=custom_pinout(pin_pool)
 				)
-			devices.update({str(pins): added})  # add to global container
-			[pin_pool.remove(p) for p in added.pin_list]  # add used pins
+
+		if pin2:
+			try:
+				pin2 = int(pin2)
+			except Exception as e:
+				error = f"while parsing pin 2, {e}."
+				return render_template(
+					'config.html', 
+					devices=devices, 
+					error=error,
+					pin_pool=sort_pool(pin_pool),
+					pinout=custom_pinout(pin_pool)
+				)
+
+		if pin1 == pin2:
+			error = f"pins cannot be the same. Found {pin1} and {pin2}"
+			return render_template(
+				'config.html', 
+				devices=devices, 
+				error=error,
+				pin_pool=sort_pool(pin_pool),
+				pinout=custom_pinout(pin_pool)
+			)
+
+		# servo only needs one pin, relay two pins
+		pins = pin1 if switch_type == 'servo' else (pin1, pin2)
+
+		# ensure all pins are available for use
+		if isinstance(pins, int):
+			pin_list = [pins]
+		else:
+			pin_list = list(pins)
+		for p in pin_list:
+			if p not in pin_pool:
+				error = f": pin {p} is not available."
+				return render_template(
+						'config.html', 
+						devices=devices, 
+						error=error,
+						pin_pool=sort_pool(pin_pool),
+						pinout=custom_pinout(pin_pool)
+					)
+		try:
+			added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
+		except Exception as e:
+			error = f"while trying to construct a switch, {e}."
+			return render_template(
+				'config.html', 
+				devices=devices, 
+				error=error, 
+				pin_pool=sort_pool(pin_pool),
+				pinout=custom_pinout(pin_pool)
+			)
+		devices.update({str(pins): added})  # add to global container
+		[pin_pool.remove(p) for p in added.pin_list]  # add used pins
 	return render_template(
 		'config.html',
 		devices=devices, 
@@ -230,28 +238,21 @@ def config():
 
 class DevicesAPI(MethodView):
 
-	@staticmethod
-	def convert_csv_tuples(inputs: str) -> tuple:
-		inputs = inputs.split(',')
-		inputs = [int(input) for input in inputs]
-		inputs.sort()
-		return tuple(inputs)
-
 	def get(self, pins: str) -> dict:
 		"""Gets information about many devices, or one device."""
 		if pins is None:
 			return devices_to_json(devices)
 		else:
-			pins = self.convert_csv_tuples(pins)
+			pins = convert_csv_tuples(pins)
 			return devices_to_json({pins: devices[str(pins)]})
 
 	def post(self, pins: str, device_type: str) -> dict:
 		"""Adds a new device."""
 		device_type = CLS_MAP.get(device_type, None)
-		
+
 		# device type must be legal
 		if device_type:
-			pins = self.convert_csv_tuples(pins)
+			pins = convert_csv_tuples(pins)
 
 			# pins must be available and not the same
 			if all([p in pin_pool for p in pins]) and len(set(pins))==len(pins):
@@ -260,10 +261,10 @@ class DevicesAPI(MethodView):
 				[pin_pool.remove(p) for p in added.pin_list]  # remove availability
 
 		return devices_to_json(devices)
-	
+
 	def delete(self, pins: str) -> dict:
 		"""Deletes a device."""
-		pins = self.convert_csv_tuples(pins)
+		pins = convert_csv_tuples(pins)
 		deleted = devices.pop(str(pins), None)
 		if deleted:
 			deleted.close()
@@ -275,7 +276,7 @@ class DevicesAPI(MethodView):
 
 	def put(self, pins: str, action: str) -> dict:
 		"""Updates the state of a device."""
-		pins = self.convert_csv_tuples(pins)
+		pins = convert_csv_tuples(pins)
 		devices[str(pins)].action(action.lower())
 		return devices_to_json(devices)
 
@@ -284,6 +285,25 @@ app.add_url_rule('/devices/', defaults={'pins': None}, view_func=device_view, me
 app.add_url_rule('/devices/<string:pins>', view_func=device_view, methods=['GET', 'DELETE'])
 app.add_url_rule('/devices/<string:pins>/<string:device_type>', view_func=device_view, methods=['POST',])
 app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view, methods=['PUT',])
+
+@app.route('/devices/save', methods=['POST',])
+def save_json():
+	global devices
+	message = save_cfg(devices)
+	app.logger.info(f'++++ saved switches: {devices}')
+	return devices_to_json(devices)
+
+@app.route('/devices/load', methods=['POST',])
+def load_json():
+	global devices
+	global pin_pool
+	cfg, message = load_cfg(PICKLE_PATH)
+	if cfg:
+		close_devices(devices)  # close out old devices
+		devices = construct_from_cfg(cfg, app.logger)  # start new devices
+		app.logger.info(f'++++ loaded switches: {devices}')
+		pin_pool = update_pin_pool(devices)
+	return devices_to_json(devices)
 
 
 if __name__ == '__main__':

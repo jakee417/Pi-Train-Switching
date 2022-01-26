@@ -44,7 +44,7 @@ Active Devices: {{ devices.__len__() }}
 <table>
     <tr>
         <td>
-            <form action="{{ url_for("config") }}" method="post">
+            <form action="{{ url_for("config_delete", pins=s.pin_string) }}" method="post">
                 <button class="btn" value="delete" name="{{ s.pin }}">
                     <i class="fa fa-close"></i>
                 </button>

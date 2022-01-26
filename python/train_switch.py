@@ -46,6 +46,14 @@ class BaseTrainSwitch:
         else:
             return list(self.__pin)
 
+    @property
+    def pin_string(self) -> str:
+        """Returns a csv seperated string of pin(s)"""
+        if isinstance(self.__pin, int):
+            return str(self.__pin)
+        else:
+            return ','.join(str(s) for s in self.__pin)
+
 
     @property
     def state(self) -> str:
