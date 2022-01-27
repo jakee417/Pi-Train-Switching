@@ -20,24 +20,14 @@ check_working_directory()
 app = Flask(__name__)
 setup_logging()
 
-# container for holding our switches - load or set defaults
+# container for holding our switches - load or initialize
 cfg, _ = load_cfg(PICKLE_PATH)
 if cfg:
 	devices = construct_from_cfg(cfg, app.logger)
 	pin_pool = update_pin_pool(devices)
 else:
 	devices = {}
-
-	# Now add one servo and one relay switch as default
-	devices.update({
-		str(pin): CLS_MAP['servo'](pin=pin, logger=app.logger) 
-		for _, pin in enumerate([7])
-	})
-	devices.update({
-		str(pins): CLS_MAP['relay'](pin=pins, logger=app.logger)
-		for _, pins in enumerate([(3, 5)])
-	})
-	pin_pool = GPIO_PINS.copy() - set([3, 5, 7])
+	pin_pool = GPIO_PINS.copy()
 
 
 ########################################################################
@@ -50,7 +40,7 @@ def index():
 		for pin, action in request.form.items():
 			devices[pin].action(action.lower())  # perform action
 	return render_template('index.html', devices=devices)
-	
+
 @app.route('/log/')
 def log():
 	return render_template('log.html', log=read_logs())
@@ -115,7 +105,68 @@ def config():
 		pinout=custom_pinout(pin_pool)
 		)
 
-@app.route('/config_delete/<string:pins>', methods = ['POST',])
+@app.route('/config/load', methods = ['POST'])
+def config_load():
+	global devices
+	global pin_pool
+	error = None
+
+	# parse entries
+	switch_type = request.form.get('type', None)
+	pins = [
+		int(v) for k, v in request.form.items()
+		if k.startswith('pin') and v
+	 ]
+
+	# ensure pins are available
+	for p in pins:
+		if p not in pin_pool:
+			error = f": pin {p} is not available."
+			return render_template(
+					'config.html',
+					devices=devices,
+					error=error,
+					pin_pool=sort_pool(pin_pool),
+					pinout=custom_pinout(pin_pool)
+				)
+
+	# cannot have duplicate pins
+	if len(set(pins)) != len(pins):
+		error = f"pins cannot be the same. Found: {pins}"
+		return render_template(
+			'config.html',
+			devices=devices,
+			error=error,
+			pin_pool=sort_pool(pin_pool),
+			pinout=custom_pinout(pin_pool)
+		)
+
+	# unpack if necessary
+	pins = pins[0] if len(pins) == 1 else tuple(pins)
+
+	# Attempt device construction
+	try:
+		added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
+	except Exception as e:
+		error = f"while trying to construct the device."
+		return render_template(
+			'config.html',
+			devices=devices,
+			error=error,
+			pin_pool=sort_pool(pin_pool),
+			pinout=custom_pinout(pin_pool)
+		)
+	devices.update({str(added.pin): added})  # add to global container
+	[pin_pool.remove(p) for p in added.pin_list]  # add used pins
+	return render_template(
+		'config.html',
+		devices=devices,
+		error = error,
+		pin_pool=sort_pool(pin_pool),
+		pinout=custom_pinout(pin_pool)
+	)
+
+@app.route('/config/delete/<string:pins>', methods = ['POST',])
 def config_delete(pins: str):
 	global devices
 	global pin_pool
@@ -131,106 +182,7 @@ def config_delete(pins: str):
 		devices=devices,
 		pin_pool=sort_pool(pin_pool),
 		pinout=custom_pinout(pin_pool)
-	)			
-
-@app.route('/config/', methods = ['POST'])
-def config_load():
-	global devices
-	global pin_pool
-	error = None
-	if ('pin1' in request.form
-		and 'pin2' in request.form 
-		and 'type' in request.form):
-		# parse switch type entry
-		switch_type = request.form.get('type', None)
-		if switch_type not in list(CLS_MAP.keys()):
-			error = f"{switch_type} is not a valid device type."
-			return render_template(
-				'config.html', 
-				devices=devices, 
-				error=error,
-				pin_pool=sort_pool(pin_pool),
-				pinout=custom_pinout(pin_pool)
-				)
-
-		# parse pin entries
-		pin1 = request.form.get('pin1', None)
-		pin2 = request.form.get('pin2', None)
-
-		if pin1:
-			try:
-				pin1 = int(pin1)
-			except Exception as e:
-				error = f"while parsing pin 1, {e}."
-				return render_template(
-					'config.html', 
-					devices=devices, 
-					error=error, 
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
-				)
-
-		if pin2:
-			try:
-				pin2 = int(pin2)
-			except Exception as e:
-				error = f"while parsing pin 2, {e}."
-				return render_template(
-					'config.html', 
-					devices=devices, 
-					error=error,
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
-				)
-
-		if pin1 == pin2:
-			error = f"pins cannot be the same. Found {pin1} and {pin2}"
-			return render_template(
-				'config.html', 
-				devices=devices, 
-				error=error,
-				pin_pool=sort_pool(pin_pool),
-				pinout=custom_pinout(pin_pool)
-			)
-
-		# servo only needs one pin, relay two pins
-		pins = pin1 if switch_type == 'servo' else (pin1, pin2)
-
-		# ensure all pins are available for use
-		if isinstance(pins, int):
-			pin_list = [pins]
-		else:
-			pin_list = list(pins)
-		for p in pin_list:
-			if p not in pin_pool:
-				error = f": pin {p} is not available."
-				return render_template(
-						'config.html', 
-						devices=devices, 
-						error=error,
-						pin_pool=sort_pool(pin_pool),
-						pinout=custom_pinout(pin_pool)
-					)
-		try:
-			added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
-		except Exception as e:
-			error = f"while trying to construct a switch, {e}."
-			return render_template(
-				'config.html', 
-				devices=devices, 
-				error=error, 
-				pin_pool=sort_pool(pin_pool),
-				pinout=custom_pinout(pin_pool)
-			)
-		devices.update({str(pins): added})  # add to global container
-		[pin_pool.remove(p) for p in added.pin_list]  # add used pins
-	return render_template(
-		'config.html',
-		devices=devices, 
-		error = error,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
-		)
+	)
 
 ########################################################################
 # RESTful API (JSON return types)

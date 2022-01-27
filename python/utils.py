@@ -189,8 +189,8 @@ def custom_pinout(
     pinout += "\n<mark>(pin)</mark> is available."
     return pinout
 
-def convert_csv_tuples(inputs: str) -> tuple:
-		inputs = inputs.split(',')
-		inputs = [int(input) for input in inputs]
-		inputs.sort()
-		return tuple(inputs)
+def convert_csv_tuples(inputs: str) -> Union[int, tuple]:
+        inputs = inputs.split(',')
+        inputs = [int(input) for input in inputs]
+        inputs.sort()
+        return inputs[0] if len(inputs) == 1 else tuple(inputs)
