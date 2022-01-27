@@ -15,10 +15,12 @@ WORKING_DIRECTORY = os.path.join(
     '/', 'home', getpass.getuser(), 'Pi-Train-Switching'
 )
 
+# Grab the pinout stdout
 PINOUT = subprocess.check_output('pinout --monochrome', shell=True)\
     .decode("utf-8") \
     .replace(' ', '&nbsp;')
 
+# For reference only.
 """
 J8:
    3V3  (1) (2)  5V    
@@ -77,7 +79,7 @@ class InvalidCurrentWorkingDirectory(Exception):
     pass
 
 class PinNotInPinPool(Exception):
-    """Raised when the current working directory (cwd) is incorrect."""
+    """Raised when a pin is accessed that is not available for use."""
     pass
 
 
@@ -177,7 +179,7 @@ def custom_pinout(
     pin_pool: set,
     total_pins: int = 40,
     pinout: str = PINOUT) -> str:
-    """Replaces pin characters with (&) if not found."""
+    """Custom update to the `pinout` program by highlighting unused pins."""
     all_pins = set(list(range(1, 41)))
     replace_pins = all_pins - pin_pool
 
@@ -190,6 +192,7 @@ def custom_pinout(
     return pinout
 
 def convert_csv_tuples(inputs: str) -> Union[int, tuple]:
+        """Converts a comma seperated list of pins into a python object."""
         inputs = inputs.split(',')
         inputs = [int(input) for input in inputs]
         inputs.sort()
