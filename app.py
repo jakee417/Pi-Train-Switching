@@ -49,9 +49,10 @@ def log():
 def about():
 	return render_template('about.html')
 
-@app.route('/beast/')
-def beast():
-	return render_template('beast.html')
+# For latency testing purposes
+# @app.route('/beast/')
+# def beast():
+# 	return render_template('beast.html')
 
 @app.route('/save/')
 def save():

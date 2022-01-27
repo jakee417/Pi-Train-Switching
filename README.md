@@ -1,14 +1,15 @@
 # Control Lionel Switches with a Raspberry Pi Zero 2 W and Servos!
 This project demonstrates how to control Lionel Train Switches from a Raspberry Pi (`RPi`).
 
-![Diagram](./static/diagram.jpg#gh-light-mode-only)
-![Diagram](./static/darkdiagram.jpg#gh-dark-mode-only)
+![Diagram](./static/diagram.jpg)
 
 ## Necessary Hardware
 [Lionel Manual Switches](http://www.lionel.com/products/fastrack-o36-manual-switch-right-hand-6-12018/)
 - [SG-90 Servo](https://www.amazon.com/Micro-Servos-Helicopter-Airplane-Controls/dp/B07MLR1498/ref=sr_1_1_sspa?crid=1R024DTWR7UM1&keywords=SG90+servo&qid=1641540462&sprefix=sg90+servo%2Caps%2C124&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUFaUjlQT1Q5UEgzQjAmZW5jcnlwdGVkSWQ9QTA3NzcxNTBMRlhKM1pNTzVYWkgmZW5jcnlwdGVkQWRJZD1BMDY1ODY0NjJVQVo1UVpWWjNQOVQmd2lkZ2V0TmFtZT1zcF9hdGYmYWN0aW9uPWNsaWNrUmVkaXJlY3QmZG9Ob3RMb2dDbGljaz10cnVl)
 - [Female to female Jumper Cables
 ](https://www.amazon.com/EDGELEC-Breadboard-Optional-Assorted-Multicolored/dp/B07GD2BWPY/ref=sr_1_2_sspa?keywords=edgelec+120pcs+breadboard+jumper+wires&qid=1641540430&sprefix=EDGELEC+%2Caps%2C128&sr=8-2-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzQUlVRkxCOTRZTzROJmVuY3J5cHRlZElkPUEwNTcxMzM4M0czSzhEQ1QyV0FSWCZlbmNyeXB0ZWRBZElkPUEwNDMxMzE5MlUwTkxJNUdHODJCVSZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=)
+
+or
 
 [Lionel Remote Switches](http://www.lionel.com/products/fastrack-o36-remote-switch-right-hand-6-12046/)
 - [5V 2-Channel Relay Interface](https://www.amazon.com/SainSmart-101-70-100-2-Channel-Relay-Module/dp/B0057OC6D8/ref=sr_1_1?keywords=sainsmart+2-channel&qid=1641540392&sr=8-1)
@@ -19,12 +20,12 @@ This project demonstrates how to control Lionel Train Switches from a Raspberry 
 ## Hardware Setup
 **Lionel Manual Switches**
 - [Connecting SG-90 Servo to `RPi`](https://youtu.be/xHDT4CwjUQE?t=323)
-- TODO: setup for building clay structures
+- TODO: Setup for building clay structures
 
 **Lionel Remote Switches**
 - [Connecting remote switch to the control relay remote switch](https://www.dexterindustries.com/Arduberry/example-projects-with-arduberry-and-raspberry-pi/lionel-train-switch-control-with-a-raspberry-pi-2/)
 - [Connecting `RPi` to control relay](https://www.electronicshub.org/control-a-relay-using-raspberry-pi/)
-
+- TODO: Include a simplified wiring schematic
 ## System Services
 Since our project relies upon the `pigpiod` pin factory, start this [daemon](https://en.wikipedia.org/wiki/Daemon_(computing)):
 ```bash
@@ -63,11 +64,11 @@ Jan 15 20:55:50 raspberrypi python3[8522]:    Use a production WSGI server inste
 Jan 15 20:55:50 raspberrypi python3[8522]:  * Debug mode: off
 ```
 
-If this fails due `User Service`, then ensure this line,
+If this fails due to a `User Service`, then ensure this line,
 ```bash
 export XDG_RUNTIME_DIR=/run/user/$(id -u)
 ```
-is found in the `~/.bashrc` file followed by a system reboot, `sudo reboot`.
+is found in the `~/.bashrc` file followed by a system reboot, `sudo reboot`. This error is commonly caused when developing from a `ssh` connection.
 
 ## Viewing the Web Server
 - First, ensure the `RPi` and client machine (laptop, cellphone tablet, etc.) are on the same `WiFi` network. 
