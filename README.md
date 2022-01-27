@@ -38,31 +38,13 @@ cd ~
 git clone https://github.com/jakee417/Pi-Train-Switching.git
 cd Pi-Train-Switching
 # Now run the setup helper
-./setup.sh
+./install.sh
 ```
-A successful installation looks like:
+And uninstall with,
 ```bash
-pi@raspberrypi:~/Pi-Train-Switching $ ./setup.sh 
-++++ Setting up train_switch.service in: /home/pi/.config/systemd/user
-++++ Enabling train_switch.service
-++++ Starting train_switch.service
-++++ train_switch.service status:
-● train_switch.service - Train Switch
-     Loaded: loaded (/home/pi/.config/systemd/user/train_switch.service; enabled; vendor preset: enabled)
-     Active: active (running) since Sat 2022-01-15 20:55:46 HST; 9min ago
-   Main PID: 8522 (python3)
-      Tasks: 5 (limit: 409)
-        CPU: 3.658s
-     CGroup: /user.slice/user-1001.slice/user@1001.service/app.slice/train_switch.service
-             └─8522 /usr/bin/python3 app.py
-
-Jan 15 20:55:46 raspberrypi systemd[644]: Started Train Switch.
-Jan 15 20:55:50 raspberrypi python3[8522]:  * Serving Flask app "app" (lazy loading)
-Jan 15 20:55:50 raspberrypi python3[8522]:  * Environment: production
-Jan 15 20:55:50 raspberrypi python3[8522]:    WARNING: This is a development server. Do not use it in a production deployment.
-Jan 15 20:55:50 raspberrypi python3[8522]:    Use a production WSGI server instead.
-Jan 15 20:55:50 raspberrypi python3[8522]:  * Debug mode: off
+./uninstall.sh
 ```
+
 
 If this fails due to a `User Service`, then ensure this line,
 ```bash
