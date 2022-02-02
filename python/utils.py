@@ -112,11 +112,18 @@ def read_logs() -> str:
     logs = ' '.join(lines).strip()
     return logs
 
-def devices_to_json(devices: dict) -> dict:
-    """Returns a serialized version of devices."""
+def devices_to_dict(devices: dict) -> dict:
+    """Returns a serializiable {str(pins): str(device)} mapping of devices."""
     return {
         str(pin): d.to_json()
         for pin, d in devices.items()
+    }
+
+def api_return_dict(devices: dict) -> dict:
+    """Returns a json-returnable dict for an API call."""
+    devices = devices_to_dict(devices)
+    return {
+        "devices": list(devices.values())        
     }
 
 def save_cfg(devices: dict) -> str:
@@ -124,7 +131,7 @@ def save_cfg(devices: dict) -> str:
     message = None
     try:
         # serialize a cfg.
-        cfg = devices_to_json(devices)
+        cfg = devices_to_dict(devices)
         pickle.dump(cfg, open(PICKLE_PATH, 'wb'))
         message = "Saved Configuration."
     except Exception as e:

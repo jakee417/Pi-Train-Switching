@@ -8,7 +8,7 @@ from flask.views import MethodView
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout, devices_to_json, convert_csv_tuples
+	construct_from_cfg, custom_pinout, api_return_dict, convert_csv_tuples
 )
 from python.train_switch import CLS_MAP
 
@@ -192,10 +192,11 @@ class DevicesAPI(MethodView):
 	def get(self, pins: str) -> dict:
 		"""Gets information about many devices, or one device."""
 		if pins is None:
-			return devices_to_json(devices)
+			return api_return_dict(devices)
 		else:
 			pins = convert_csv_tuples(pins)
-			return devices_to_json({pins: devices[str(pins)]})
+			return_devices = devices.get(str(pins), {})
+			return api_return_dict({pins: return_devices})
 
 	def post(self, pins: str, device_type: str) -> dict:
 		"""Adds a new device."""
@@ -211,7 +212,7 @@ class DevicesAPI(MethodView):
 				devices.update({str(pins): added})  # add to global container
 				[pin_pool.remove(p) for p in added.pin_list]  # remove availability
 
-		return devices_to_json(devices)
+		return api_return_dict(devices)
 
 	def delete(self, pins: str) -> dict:
 		"""Deletes a device."""
@@ -223,13 +224,13 @@ class DevicesAPI(MethodView):
 			# add the pins back into the pool
 			[pin_pool.add(p) for p in deleted.pin_list]
 
-		return devices_to_json(devices)
+		return api_return_dict(devices)
 
 	def put(self, pins: str, action: str) -> dict:
 		"""Updates the state of a device."""
 		pins = convert_csv_tuples(pins)
 		devices[str(pins)].action(action.lower())
-		return devices_to_json(devices)
+		return api_return_dict(devices)
 
 device_view = DevicesAPI.as_view('devices_api')
 app.add_url_rule('/devices/', defaults={'pins': None}, view_func=device_view, methods=['GET',])
@@ -242,7 +243,7 @@ def save_json():
 	global devices
 	message = save_cfg(devices)
 	app.logger.info(f'++++ saved switches: {devices}')
-	return devices_to_json(devices)
+	return api_return_dict(devices)
 
 @app.route('/devices/load', methods=['POST',])
 def load_json():
@@ -254,7 +255,7 @@ def load_json():
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
 		app.logger.info(f'++++ loaded switches: {devices}')
 		pin_pool = update_pin_pool(devices)
-	return devices_to_json(devices)
+	return api_return_dict(devices)
 
 
 if __name__ == '__main__':
