@@ -77,7 +77,7 @@ class BaseTrainSwitch:
                 - name
         """
         return {
-            'pin': self.pin,
+            'pins': self.pin,
             'state': self.state,
             'name': self.name
         }
