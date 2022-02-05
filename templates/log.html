@@ -10,9 +10,13 @@
 
 <body>
     <h1>Logging Page</h1>
-    <br/>
-    <textarea id="log" name="log" rows="25" cols="125" readonly="True">
+    <h2>Logs</h2>
+    <textarea id="log" name="log" rows="25" cols="100" readonly="True">
         {{ log }}
+    </textarea>
+    <h2>BLE Logs</h2>
+    <textarea id="ble_log" name="ble_log" rows="10" cols="100" readonly="True">
+        {{ ble_log }}
     </textarea>
     <h2>Quick Links</h2>
     <a href="{{ url_for('index') }}">Back to Home</a>

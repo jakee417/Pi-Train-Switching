@@ -1,7 +1,5 @@
-import bluetooth
+from python import bluetooth
 import time
-import threading
-import logging
 
 PITCHES = [0xfe, 0xff, 0, 1, 2]
 
@@ -20,25 +18,23 @@ class LionChief(object):
         self._blue_connection = None
         self.current_speed = 0
         self.logger = logger
-        self.__connected = False
 
     @property
     def connected(self) -> bool:
-        return self.__connected
+        if self._blue_connection: return self._blue_connection._connected
+        return False
 
     def connect(self, max_retries: int = 5) -> None:
         """Connects to a LionChief with a set number of retries."""
-        
         # First cleanup previous runs if needed. Otherwise, display all devices.
         try:
             self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
         except Exception as e:
-            self.logger.info(f"++++ Connected Devices: \n {bluetooth.show_all_devices()}")
+            self.logger.warning(f"++++ Device Removal: \n {e}")
         self.logger.info("++++ Connecting to LionChief...")
         
         i = 0
-        connected = False
-        while connected == False and i < max_retries:
+        while self.connected == False and i < max_retries:
             try:
                 self._blue_connection = bluetooth.BTLEDevice(self._mac_address)
                 self._blue_connection.connect()
@@ -47,17 +43,13 @@ class LionChief(object):
                     f"++++ Error while connecting ({i + 1} of {max_retries}): \n"
                     f"{e}"
                 )
-                connected = False
                 i += 1
-                continue
-            connected = True # only reachable without exception
 
-        if connected == False:
+        if self.connected == False:
             self.logger.error("++++ Could not connect with Lionchief...")
-        self.__connected = connected
 
-    def _send_cmd(self, values: list) -> None:
-        """Core send command. Only functions when connected."""
+    def _send_cmd(self, values: list) -> bool:
+        """Core send command,only functions when connected. Returns success boolean."""
         if self.connected:
             checksum = 256
             for v in values:
@@ -67,16 +59,19 @@ class LionChief(object):
             values.insert(0,0)
             values.append(checksum)
             self._blue_connection.char_write(0x25, bytes(values), True)
+            return True
+        return False
 
     def _set_speed(self, speed: int) -> None:
-        self._send_cmd([0x45, speed])
-        self.current_speed = speed
-        self.logger.info(f"++++ Speed: {self.current_speed}...")
+        if self._send_cmd([0x45, speed]):
+            self.current_speed = speed
+            self.logger.info(f"++++ Speed: {self.current_speed}...")
 
     #########################################################################
     # "Action" functions
     #########################################################################
     def ramp(self, end_speed: int) -> None:
+        """Ramp up speed while ringing the bell."""
         self.set_bell(True)
         self.logger.info("++++ Starting ramp...")
         speed = self.current_speed
@@ -99,7 +94,11 @@ class LionChief(object):
         self.set_horn(False)
 
     def horn_seq(self, seq: str) -> None:
-        """Mimic horn sequences found on most train whistles."""
+        """Mimic horn sequences found on most common train whistles.
+        
+        Args:
+            seq: One of ' ', '-', and '.' that map to different sounds.
+        """
         for s in seq:
             if s == '-':
                 self.horn(1)
@@ -134,46 +133,44 @@ class LionChief(object):
 
     def set_bell_pitch(self, pitch: int) -> None:
         if pitch < 0 or pitch >= len(PITCHES):
-            self.logger.error("++++ Bell pitch should be between 0 and "+ str(pitch))
+            self.logger.error(f"++++ Bell pitch should be between 0 and {len(PITCHES)}")
             return
         self._send_cmd([0x44, 0x02, 0x0e, PITCHES[pitch]])
 
     def set_horn_pitch(self, pitch: int) -> None:
         if pitch < 0 or pitch >= len(PITCHES):
-            self.logger.error("++++ Horn pitch should be between 0 and "+ str(pitch))
+            self.logger.error(f"++++ Horn pitch should be between 0 and {len(PITCHES)}")
             return
-        self._send_cmd([0x44, 0x01, 0x0e, PITCHES[pitch]])
-
-    def __del__(self):
-        if self.connected:
-            self._blue_connection.stop()
+        self._send_cmd([0x44, 0x01, 0x0e, PITCHES[pitch]])  
 
     def close(self, max_retries: int = 5) -> None:
-        i = 0
-
         # Attempt to close the bluetooth connection
-        while self._blue_connection._connected and i < max_retries:
+        i = 0
+        while self.connected and i < max_retries:
             self.logger.info(f"++++ Closing connection ({i + 1} of {max_retries})")
-            self.__del__()
+            self._blue_connection.stop()
             i += 1
 
         # Attempt to close... again...
         try:
             self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
-            self.__connected = False  # only now are we almost sure its not connected
         except Exception as e:
-            self.logger.info(f"++++ Connected Devices: \n {bluetooth.show_all_devices()}")
+            self.logger.warning(f"++++ Device Removal: \n {e}")
+    
+    def __del__(self):
+        self.close()
 
-if __name__ == "__main__":
-    logging.getLogger().setLevel(logging.INFO)
-    chief = LionChief("34:14:B5:3E:A4:71", logging)
-    chief.connect()
-    time.sleep(1)
-    chief.ramp(10)
-    chief.horn_seq(' . . ')
-    time.sleep(8)
-    chief.speak()
-    time.sleep(8)
-    chief.ramp(0)
-    chief.horn_seq(' . ')
-    chief.close()
+
+# if __name__ == "__main__":
+#     logging.getLogger().setLevel(logging.INFO)
+#     chief = LionChief("34:14:B5:3E:A4:71", logging)
+#     chief.connect()
+#     time.sleep(1)
+#     chief.ramp(10)
+#     chief.horn_seq(' . . ')
+#     time.sleep(8)
+#     chief.speak()
+#     time.sleep(8)
+#     chief.ramp(0)
+#     chief.horn_seq(' . ')
+#     chief.close()

@@ -1,6 +1,5 @@
 """Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
-
 from os import strerror
 from flask import Flask, render_template, request
 from flask.views import MethodView
@@ -12,6 +11,8 @@ from python.utils import (
 	construct_from_cfg, custom_pinout, api_return_dict, convert_csv_tuples
 )
 from python.train_switch import CLS_MAP
+from python.lionchief import LionChief
+from python.bluetooth import show_all_devices
 
 
 ########################################################################
@@ -23,6 +24,7 @@ setup_logging()
 
 # container for holding our devices - load or initialize
 cfg, _ = load_cfg(PICKLE_PATH)
+chief = None
 if cfg:
 	devices = construct_from_cfg(cfg, app.logger)
 	pin_pool = update_pin_pool(devices)
@@ -43,7 +45,11 @@ def index():
 
 @app.route('/log/')
 def log():
-	return render_template('log.html', log=read_logs())
+	return render_template(
+		'log.html', 
+		log=f"\n {read_logs()}",
+		ble_log=f"\n {show_all_devices()}"
+	)
 
 @app.route('/about/')
 def about():
@@ -217,7 +223,6 @@ def config_shuffle(pins: str, direction: str):
 # RESTful API (JSON return types)
 ########################################################################
 class DevicesAPI(MethodView):
-
 	def get(self, pins: str) -> dict:
 		"""Gets information about many devices, or one device."""
 		if pins is None:
@@ -285,6 +290,33 @@ def load_json():
 		app.logger.info(f'++++ loaded devices: {devices}')
 		pin_pool = update_pin_pool(devices)
 	return api_return_dict(devices)
+
+@app.route('/train/start')
+def start_train():
+	global chief
+	if chief: del chief
+
+	# Start a new ble connection
+	chief = LionChief(
+		"34:14:B5:3E:A4:71",
+		 app.logger
+	)
+	chief.connect()
+	chief.horn_seq(' ')
+	chief.ramp(10)
+	chief.horn_seq(' .  . ')
+	chief.speak()
+	return {'status': 'running'}
+
+@app.route('/train/stop')
+def stop_train():
+	global chief
+	if chief:
+		chief.ramp(0)
+		chief.horn_seq(' . ')
+		chief.close()
+		return {'status': 'stopped'}
+	return {'status': 'uninitialized'}
 
 
 if __name__ == '__main__':
