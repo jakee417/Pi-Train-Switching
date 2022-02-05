@@ -3,8 +3,6 @@ import time
 import threading
 import logging
 
-logging.getLogger().setLevel(logging.INFO)
-
 PITCHES = [0xfe, 0xff, 0, 1, 2]
 
 class LionChief(object):
@@ -95,10 +93,20 @@ class LionChief(object):
     def speak(self, phrase: int = 0) -> None:
         self._send_cmd([0x4d, phrase, 0])
 
-    def horn(self, honk_time: int = 1):
+    def horn(self, honk_time: int = 1) -> None:
         self.set_horn(True)
         time.sleep(honk_time)
         self.set_horn(False)
+
+    def horn_seq(self, seq: str) -> None:
+        """Mimic horn sequences found on most train whistles."""
+        for s in seq:
+            if s == '-':
+                self.horn(1)
+            elif s == '.':
+                self.horn(0.5)
+            elif s == ' ':
+                time.sleep(0.5)
 
     def set_horn(self, on: bool) -> None:
         self._send_cmd([0x48, 1 if on else 0])
@@ -157,13 +165,15 @@ class LionChief(object):
             self.logger.info(f"++++ Connected Devices: \n {bluetooth.show_all_devices()}")
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     chief = LionChief("34:14:B5:3E:A4:71", logging)
     chief.connect()
     time.sleep(1)
     chief.ramp(10)
-    chief.horn()
+    chief.horn_seq(' . . ')
     time.sleep(8)
     chief.speak()
     time.sleep(8)
     chief.ramp(0)
+    chief.horn_seq(' . ')
     chief.close()

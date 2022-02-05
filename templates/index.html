@@ -16,7 +16,7 @@
     <hr />
     <!-- Loop through all switches and display controls -->
     {% for key, value in devices.items() %}
-    {{ forms.display(value) }}
+    {{ forms.display(loop.index, value) }}
     <hr />
     {% endfor %}
     <h2>Quick Links</h2>

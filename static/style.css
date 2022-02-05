@@ -1,6 +1,12 @@
 body {
 	background: beige;
 	color: black;
+	font-size: 100%;
+}
+
+.bolded { 
+	font-weight: bold; 
+	font-size: 1.875em;
 }
 
 input.unclicked {

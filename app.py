@@ -165,7 +165,7 @@ def config_load():
 		error = error,
 		pin_pool=sort_pool(pin_pool),
 		pinout=custom_pinout(pin_pool)
-	)
+	)	
 
 @app.route('/config/delete/<string:pins>', methods = ['POST',])
 def config_delete(pins: str):
@@ -184,6 +184,34 @@ def config_delete(pins: str):
 		pin_pool=sort_pool(pin_pool),
 		pinout=custom_pinout(pin_pool)
 	)
+
+@app.route('/config/shuffle/<string:pins>/<string:direction>', methods=['POST',])
+def config_shuffle(pins: str, direction: str):
+	global devices
+	pins = str(convert_csv_tuples(pins))
+	curr_index = [i for i, (k, v) in enumerate(devices.items()) if k == pins]
+	assert len(curr_index) == 1
+	curr_index = curr_index[0]
+	current_order = list(devices.keys())
+	app.logger.info(f"++++ Current Order: {current_order}")
+	app.logger.info(f"++++ Swapping pin: {pins} @ index: {curr_index}")
+	if direction == 'up' and curr_index != 0:
+		swapped = current_order[curr_index - 1]
+		current_order[curr_index - 1] = pins
+		current_order[curr_index] = swapped
+	elif direction == 'down' and curr_index + 1 != len(current_order):
+		swapped = current_order[curr_index + 1]
+		current_order[curr_index + 1] = pins
+		current_order[curr_index] = swapped
+	app.logger.info(f"++++ New Order: {current_order}")
+	devices = OrderedDict((k, devices[k]) for k in current_order)
+	return render_template(
+		'config.html',
+		devices=devices,
+		pin_pool=sort_pool(pin_pool),
+		pinout=custom_pinout(pin_pool)
+	)
+
 
 ########################################################################
 # RESTful API (JSON return types)
