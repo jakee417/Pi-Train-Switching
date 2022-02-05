@@ -428,7 +428,8 @@ def show_all_devices() -> str:
         """
         bluetoothctl devices | \
         cut -f2 -d' ' | \
-        while read uuid; do bluetoothctl info $uuid; done|grep -e \"Device\|Connected\|Name\"
+        while read uuid; do bluetoothctl info $uuid; done| \
+        grep -e \"Device\|Connected\|Name\"
         """,
         shell=True
     )\

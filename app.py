@@ -1,9 +1,10 @@
-"""Web server for train switches"""
+"""Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
 
 from os import strerror
 from flask import Flask, render_template, request
 from flask.views import MethodView
+from collections import OrderedDict
 
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
@@ -20,13 +21,13 @@ check_working_directory()
 app = Flask(__name__)
 setup_logging()
 
-# container for holding our switches - load or initialize
+# container for holding our devices - load or initialize
 cfg, _ = load_cfg(PICKLE_PATH)
 if cfg:
 	devices = construct_from_cfg(cfg, app.logger)
 	pin_pool = update_pin_pool(devices)
 else:
-	devices = {}
+	devices = OrderedDict({})
 	pin_pool = GPIO_PINS.copy()
 
 ########################################################################
@@ -57,7 +58,7 @@ def about():
 def save():
 	global devices
 	message = save_cfg(devices)
-	app.logger.info(f'++++ saved switches: {devices}')
+	app.logger.info(f'++++ saved devices: {devices}')
 	return render_template(
 		'config.html', 
 		devices=devices, 
@@ -82,7 +83,7 @@ def load():
 			) 
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
-		app.logger.info(f'++++ loaded switches: {devices}')
+		app.logger.info(f'++++ loaded devices: {devices}')
 		pin_pool = update_pin_pool(devices)
 	except Exception as e:
 		message = e
@@ -112,7 +113,7 @@ def config_load():
 	error = None
 
 	# parse entries
-	switch_type = request.form.get('type', None)
+	device_type = request.form.get('type', None)
 	pins = [
 		int(v) for k, v in request.form.items()
 		if k.startswith('pin') and v
@@ -146,7 +147,7 @@ def config_load():
 
 	# Attempt device construction
 	try:
-		added = CLS_MAP.get(switch_type)(pin=pins, logger=app.logger)
+		added = CLS_MAP.get(device_type)(pin=pins, logger=app.logger)
 	except Exception as e:
 		error = f"while trying to construct the device."
 		return render_template(
@@ -242,7 +243,7 @@ app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view
 def save_json():
 	global devices
 	message = save_cfg(devices)
-	app.logger.info(f'++++ saved switches: {devices}')
+	app.logger.info(f'++++ saved devices: {devices}')
 	return api_return_dict(devices)
 
 @app.route('/devices/load', methods=['POST',])
@@ -253,7 +254,7 @@ def load_json():
 	if cfg:
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
-		app.logger.info(f'++++ loaded switches: {devices}')
+		app.logger.info(f'++++ loaded devices: {devices}')
 		pin_pool = update_pin_pool(devices)
 	return api_return_dict(devices)
 

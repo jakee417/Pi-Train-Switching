@@ -6,7 +6,9 @@ import subprocess
 import pickle
 import io
 import sys
-from typing import Union
+from typing import Union, Tuple, Optional
+from collections import OrderedDict
+
 from python.train_switch import CLS_MAP
 
 LOG_FILE = 'server.log'
@@ -69,7 +71,7 @@ GPIO_PINS = set(
     ]
 )
 
-def sort_pool(pool):
+def sort_pool(pool: list) -> list:
     l = list(pool)
     l.sort()
     return l
@@ -82,7 +84,6 @@ class PinNotInPinPool(Exception):
     """Raised when a pin is accessed that is not available for use."""
     pass
 
-
 def check_working_directory() -> None:
     """Ensure cwd is /home/pi/Documents/trains"""
     cwd = os.getcwd()
@@ -94,7 +95,7 @@ def check_working_directory() -> None:
             f"{cwd}"
         )
 
-def setup_logging():
+def setup_logging() -> None:
     """Sets up the server logging."""
     if os.path.exists(LOG_FILE):
         os.remove(LOG_FILE)
@@ -112,21 +113,21 @@ def read_logs() -> str:
     logs = ' '.join(lines).strip()
     return logs
 
-def devices_to_dict(devices: dict) -> dict:
+def devices_to_dict(devices: OrderedDict) -> OrderedDict:
     """Returns a serializiable {str(pins): str(device)} mapping of devices."""
-    return {
+    return OrderedDict({
         str(pin): d.to_json()
         for pin, d in devices.items()
-    }
+    })
 
-def api_return_dict(devices: dict) -> dict:
+def api_return_dict(devices: OrderedDict) -> dict:
     """Returns a json-returnable dict for an API call."""
     devices = devices_to_dict(devices)
     return {
         "devices": list(devices.values())        
     }
 
-def save_cfg(devices: dict) -> str:
+def save_cfg(devices: OrderedDict) -> str:
     """Save and return a serialized message."""
     message = None
     try:
@@ -138,7 +139,19 @@ def save_cfg(devices: dict) -> str:
         message = e
     return message
 
-def load_cfg(path: str) -> Union[dict, str]:
+def construct_from_cfg(cfg: OrderedDict, logger: object) -> OrderedDict:
+    """Constructs a new dictionary of devices from a configuration."""
+    # construct switches from config
+    devices = OrderedDict({
+        str(v['pins']): CLS_MAP.get(v['name'])(
+            pin=v['pins'], logger=logger
+        ) for _, v in cfg.items()
+	})
+    # Set states from configuration
+    _ = [v.action(cfg[str(p)]['state']) for p, v in devices.items()]
+    return devices
+
+def load_cfg(path: str) -> Tuple[Optional[OrderedDict], Optional[str]]:
     """Load a cfg from a path. Return device dictionary and string message."""
     cfg = None
     message = None
@@ -150,7 +163,7 @@ def load_cfg(path: str) -> Union[dict, str]:
         message = "Loaded file."
     return cfg, message
 
-def close_devices(devices: dict) -> None:
+def close_devices(devices: OrderedDict) -> None:
     """Close all connections in a dictionary of devices."""
     # close all pre existing connections
     for _, device in devices.items():
@@ -158,19 +171,7 @@ def close_devices(devices: dict) -> None:
 
     del devices  # garbage collect
 
-def construct_from_cfg(cfg: dict, logger: object) -> dict:
-    """Constructs a new dictionary of devices from a configuration."""
-    # construct switches from config
-    devices = {
-			str(v['pin']): CLS_MAP.get(v['name'])(
-				pin=v['pin'], logger=logger
-			) for _, v in cfg.items()
-		}
-    # Set states from configuration
-    _ = [v.action(cfg[str(p)]['state']) for p, v in devices.items()]
-    return devices
-
-def update_pin_pool(devices: dict) -> set:
+def update_pin_pool(devices: OrderedDict) -> set:
     """Update a pool of pins based off current devices."""
     pin_pool = GPIO_PINS.copy()
     for _, d in devices.items():
