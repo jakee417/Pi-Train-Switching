@@ -20,6 +20,7 @@ class BaseTrainSwitch:
             pin: Unique number for a gpio pin on a raspberry pi.
                 Alternatively a tuple of integers for multi-pin devices.
             verbose: Either True or False. Verbosity of object.
+            logger: logging object passed from Flask server.
         """
         self.__name__ = 'Base Train Switch'
         if isinstance(pin, tuple):
