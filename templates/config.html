@@ -12,15 +12,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <body>
-    
-    <h1>Configuration</h1>
-    {{ forms.total(devices) }}
+    <a href="{{ url_for('index') }}">Back to Home</a>
+    <br>
+    <a href="{{ url_for('pinout') }}">View Pinout</a>
     <hr />
     {% for key, value in devices.items() %}
     {{ forms.active(value) }}
     <hr />
     {% endfor %}
-    * Refer to physical pin locations, not GPIO X.
     {{ forms.config(pin_pool) }}
     {% if error: %}
     <p style="color:red">Error {{ error }}</p>
@@ -31,11 +30,5 @@
     <p style="color:red">{{ message }}</p>
     {% endif %}
     <hr />
-
-    <h2>Pinout Quick Reference</h2>
-    <pre>{{ pinout|safe }}</pre>
-
-    <h2>Quick Links</h2>
-    <a href="{{ url_for('index') }}">Back to Home</a>
 </body>
 </html>

@@ -1,5 +1,6 @@
 """Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
+import time
 from os import strerror
 from flask import Flask, render_template, request
 from flask.views import MethodView
@@ -51,9 +52,9 @@ def log():
 		ble_log=f"\n {show_all_devices()}"
 	)
 
-@app.route('/about/')
-def about():
-	return render_template('about.html')
+# @app.route('/about/')
+# def about():
+# 	return render_template('about.html')
 
 # For latency testing purposes
 # @app.route('/beast/')
@@ -111,6 +112,14 @@ def config():
 		pin_pool=sort_pool(pin_pool),
 		pinout=custom_pinout(pin_pool)
 		)
+
+@app.route('/pinout/')
+def pinout():
+	global pin_pool
+	return render_template(
+		'pinout.html',
+		pinout=custom_pinout(pin_pool)
+	)
 
 @app.route('/config/load', methods = ['POST'])
 def config_load():
@@ -294,18 +303,18 @@ def load_json():
 @app.route('/train/start')
 def start_train():
 	global chief
-	if chief: del chief
-
-	# Start a new ble connection
-	chief = LionChief(
-		"34:14:B5:3E:A4:71",
+	if chief is None:
+		chief = LionChief(
+			"34:14:B5:3E:A4:71",
 		 app.logger
 	)
 	chief.connect()
-	chief.horn_seq(' ')
-	chief.ramp(10)
-	chief.horn_seq(' .  . ')
-	chief.speak()
+	time.sleep(0.25)
+	
+	if chief.connected:
+		chief.ramp(9)
+		chief.horn_seq(' .  . ')
+		chief.speak(1)
 	return {'status': 'running'}
 
 @app.route('/train/stop')
@@ -313,10 +322,8 @@ def stop_train():
 	global chief
 	if chief:
 		chief.ramp(0)
-		chief.horn_seq(' . ')
 		chief.close()
-		return {'status': 'stopped'}
-	return {'status': 'uninitialized'}
+	return {'status': 'stopped'}
 
 
 if __name__ == '__main__':

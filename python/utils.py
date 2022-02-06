@@ -196,7 +196,7 @@ def custom_pinout(
         replace = f"<mark>{find_text}</mark>"
         pinout = pinout.replace(find_text, replace)
 
-    pinout += "\n<mark>(pin)</mark> is available."
+    pinout = "<mark>(pin)</mark> is available. \n" + pinout
     return pinout
 
 def convert_csv_tuples(inputs: str) -> Union[int, tuple]:

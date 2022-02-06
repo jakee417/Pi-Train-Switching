@@ -26,13 +26,6 @@ class LionChief(object):
 
     def connect(self, max_retries: int = 5) -> None:
         """Connects to a LionChief with a set number of retries."""
-        # First cleanup previous runs if needed. Otherwise, display all devices.
-        try:
-            self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
-        except Exception as e:
-            self.logger.warning(f"++++ Device Removal: \n {e}")
-        self.logger.info("++++ Connecting to LionChief...")
-        
         i = 0
         while self.connected == False and i < max_retries:
             try:
@@ -147,16 +140,13 @@ class LionChief(object):
         # Attempt to close the bluetooth connection
         i = 0
         while self.connected and i < max_retries:
-            self.logger.info(f"++++ Closing connection ({i + 1} of {max_retries})")
-            self._blue_connection.stop()
-            i += 1
+            try:
+                self._blue_connection.stop()
+                self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
+            except Exception as e:
+                self.logger.info(f"++++ Closing connection ({i + 1} of {max_retries})")
+        assert self.connected == False
 
-        # Attempt to close... again...
-        try:
-            self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
-        except Exception as e:
-            self.logger.warning(f"++++ Device Removal: \n {e}")
-    
     def __del__(self):
         self.close()
 

@@ -1,12 +1,14 @@
 body {
-	background: beige;
+	background-image: url("/static/hip-square.png");
+  	background-repeat: repeat;
 	color: black;
 	font-size: 100%;
+	font-family: Verdana, sans-serif;
 }
 
 .bolded { 
 	font-weight: bold; 
-	font-size: 1.875em;
+	font-size: 2em;
 }
 
 input.unclicked {
