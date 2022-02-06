@@ -1,6 +1,7 @@
 """Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
 import time
+import os
 from os import strerror
 from flask import Flask, render_template, request
 from flask.views import MethodView
@@ -13,7 +14,7 @@ from python.utils import (
 )
 from python.train_switch import CLS_MAP
 from python.lionchief import LionChief
-from python.bluetooth import show_all_devices
+# from python.bluetooth import show_all_devices
 
 
 ########################################################################
@@ -23,9 +24,11 @@ check_working_directory()
 app = Flask(__name__)
 setup_logging()
 
+# setup ble devices
+ble_devices = {}
+
 # container for holding our devices - load or initialize
 cfg, _ = load_cfg(PICKLE_PATH)
-chief = None
 if cfg:
 	devices = construct_from_cfg(cfg, app.logger)
 	pin_pool = update_pin_pool(devices)
@@ -49,7 +52,7 @@ def log():
 	return render_template(
 		'log.html', 
 		log=f"\n {read_logs()}",
-		ble_log=f"\n {show_all_devices()}"
+		# ble_log=f"\n {show_all_devices()}"
 	)
 
 # @app.route('/about/')
@@ -302,28 +305,38 @@ def load_json():
 
 @app.route('/train/start')
 def start_train():
-	global chief
-	if chief is None:
-		chief = LionChief(
+	global ble_devices
+	if 'chief' not in ble_devices:
+		# init one time
+		ble_devices['chief'] = LionChief(
 			"34:14:B5:3E:A4:71",
-		 app.logger
-	)
-	chief.connect()
-	time.sleep(0.25)
-	
-	if chief.connected:
-		chief.ramp(9)
-		chief.horn_seq(' .  . ')
-		chief.speak(1)
-	return {'status': 'running'}
+			app.logger
+		)
+		app.logger.info("++++ chief created")
+
+	try:
+		ble_devices['chief'].connect()
+		time.sleep(0.25)
+		app.logger.info(f"++++ chief connected: {ble_devices['chief'].connected}")
+	except Exception as e:
+		app.logger.error(e)
+
+	if ble_devices['chief'].connected:
+		ble_devices['chief'].ramp(9)
+		ble_devices['chief'].horn_seq(' .  . ')
+		ble_devices['chief'].speak(1)
+	return {'connected': ble_devices['chief'].connected}
 
 @app.route('/train/stop')
 def stop_train():
-	global chief
-	if chief:
-		chief.ramp(0)
-		chief.close()
-	return {'status': 'stopped'}
+	global ble_devices
+	if 'chief' in ble_devices:
+		if ble_devices['chief'].connected:
+			app.logger.info("++++ unconnecting train...")
+			ble_devices['chief'].ramp(0)
+			ble_devices['chief'].close()
+		return {'connected': ble_devices['chief'].connected}
+	return {'connected': False}
 
 
 if __name__ == '__main__':

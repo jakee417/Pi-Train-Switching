@@ -15,7 +15,7 @@ class LionChief(object):
             logger: logging object passed from Flask server
         """
         self._mac_address = mac_address
-        self._blue_connection = None
+        self._blue_connection = bluetooth.BTLEDevice(self._mac_address)
         self.current_speed = 0
         self.logger = logger
 
@@ -29,7 +29,6 @@ class LionChief(object):
         i = 0
         while self.connected == False and i < max_retries:
             try:
-                self._blue_connection = bluetooth.BTLEDevice(self._mac_address)
                 self._blue_connection.connect()
             except Exception as e:
                 self.logger.error(
@@ -65,6 +64,7 @@ class LionChief(object):
     #########################################################################
     def ramp(self, end_speed: int) -> None:
         """Ramp up speed while ringing the bell."""
+        # TODO: Add momentum
         self.set_bell(True)
         self.logger.info("++++ Starting ramp...")
         speed = self.current_speed
@@ -142,7 +142,7 @@ class LionChief(object):
         while self.connected and i < max_retries:
             try:
                 self._blue_connection.stop()
-                self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
+                # self.logger.info(f"++++ Device Removal: \n {bluetooth.close_device(self._mac_address)}")
             except Exception as e:
                 self.logger.info(f"++++ Closing connection ({i + 1} of {max_retries})")
         assert self.connected == False
