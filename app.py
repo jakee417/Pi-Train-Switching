@@ -1,8 +1,5 @@
 """Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
-import time
-import os
-from os import strerror
 from flask import Flask, render_template, request
 from flask.views import MethodView
 from collections import OrderedDict
@@ -73,8 +70,7 @@ def save():
 		'config.html', 
 		devices=devices, 
 		message=message,
-		pin_pool=sort_pool(pin_pool), 
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 	)
 
 @app.route('/load/')
@@ -88,8 +84,7 @@ def load():
 				'config.html',
 				devices=devices,
 				message=message,
-				pin_pool=sort_pool(pin_pool),
-				pinout=custom_pinout(pin_pool)
+				pin_pool=sort_pool(pin_pool)
 			) 
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
@@ -101,8 +96,7 @@ def load():
 		'config.html',
 		devices=devices,
 		message=message,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 	)
 
 @app.route('/config/')
@@ -112,8 +106,7 @@ def config():
 	return render_template(
 		'config.html',
 		devices=devices,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 		)
 
 @app.route('/pinout/')
@@ -145,8 +138,7 @@ def config_load():
 					'config.html',
 					devices=devices,
 					error=error,
-					pin_pool=sort_pool(pin_pool),
-					pinout=custom_pinout(pin_pool)
+					pin_pool=sort_pool(pin_pool)
 				)
 
 	# cannot have duplicate pins
@@ -156,8 +148,7 @@ def config_load():
 			'config.html',
 			devices=devices,
 			error=error,
-			pin_pool=sort_pool(pin_pool),
-			pinout=custom_pinout(pin_pool)
+			pin_pool=sort_pool(pin_pool)
 		)
 
 	# unpack if necessary
@@ -172,8 +163,7 @@ def config_load():
 			'config.html',
 			devices=devices,
 			error=error,
-			pin_pool=sort_pool(pin_pool),
-			pinout=custom_pinout(pin_pool)
+			pin_pool=sort_pool(pin_pool)
 		)
 	devices.update({str(added.pin): added})  # add to global container
 	[pin_pool.remove(p) for p in added.pin_list]  # add used pins
@@ -181,8 +171,7 @@ def config_load():
 		'config.html',
 		devices=devices,
 		error = error,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 	)	
 
 @app.route('/config/delete/<string:pins>', methods = ['POST',])
@@ -193,14 +182,11 @@ def config_delete(pins: str):
 	deleted = devices.pop(str(pins), None)
 	if deleted:
 		deleted.close()  # close out any used pins
-
-		# add the pins back into the pool
-		[pin_pool.add(p) for p in deleted.pin_list]
+		[pin_pool.add(p) for p in deleted.pin_list]  # add back to pool
 	return render_template(
 		'config.html',
 		devices=devices,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 	)
 
 @app.route('/config/shuffle/<string:pins>/<string:direction>', methods=['POST',])
@@ -226,8 +212,7 @@ def config_shuffle(pins: str, direction: str):
 	return render_template(
 		'config.html',
 		devices=devices,
-		pin_pool=sort_pool(pin_pool),
-		pinout=custom_pinout(pin_pool)
+		pin_pool=sort_pool(pin_pool)
 	)
 
 
@@ -257,7 +242,6 @@ class DevicesAPI(MethodView):
 				added = device_type(pin=pins, logger=app.logger)
 				devices.update({str(pins): added})  # add to global container
 				[pin_pool.remove(p) for p in added.pin_list]  # remove availability
-
 		return api_return_dict(devices)
 
 	def delete(self, pins: str) -> dict:
@@ -303,24 +287,29 @@ def load_json():
 		pin_pool = update_pin_pool(devices)
 	return api_return_dict(devices)
 
+@app.route('/devices/toggle/<int:device>')
+def toggle(device: int):
+	"""Toggle the state of a device, or set to 'straight' by default."""
+	global devices
+	device -= 1  # user will see devices as 1-indexed, convert to 0-indexed
+	order = [k for k, v in devices.items()]  # get ordering of pins
+	pins = order[device]
+	if devices[pins].state == 'straight':
+		devices[str(pins)].action('turn')
+	else:
+		devices[str(pins)].action('straight')
+	return api_return_dict(devices)
+
 @app.route('/train/start')
 def start_train():
 	global ble_devices
 	if 'chief' not in ble_devices:
 		# init one time
 		ble_devices['chief'] = LionChief(
-			"34:14:B5:3E:A4:71",
-			app.logger
+			"34:14:B5:3E:A4:71", app.logger
 		)
-		app.logger.info("++++ chief created")
-
-	try:
 		ble_devices['chief'].connect()
-		time.sleep(0.25)
-		app.logger.info(f"++++ chief connected: {ble_devices['chief'].connected}")
-	except Exception as e:
-		app.logger.error(e)
-
+		ble_devices['chief'].horn_seq(' ')
 	if ble_devices['chief'].connected:
 		ble_devices['chief'].ramp(9)
 		ble_devices['chief'].horn_seq(' .  . ')
@@ -332,9 +321,7 @@ def stop_train():
 	global ble_devices
 	if 'chief' in ble_devices:
 		if ble_devices['chief'].connected:
-			app.logger.info("++++ unconnecting train...")
 			ble_devices['chief'].ramp(0)
-			ble_devices['chief'].close()
 		return {'connected': ble_devices['chief'].connected}
 	return {'connected': False}
 

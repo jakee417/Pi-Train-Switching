@@ -26,6 +26,7 @@ class LionChief(object):
 
     def connect(self, max_retries: int = 5) -> None:
         """Connects to a LionChief with a set number of retries."""
+        self.logger.info(f"++++ Connecting LionChief @ {self._mac_address}...")
         i = 0
         while self.connected == False and i < max_retries:
             try:
@@ -35,7 +36,7 @@ class LionChief(object):
                     f"++++ Error while connecting ({i + 1} of {max_retries}): \n"
                     f"{e}"
                 )
-                i += 1
+            i += 1
 
         if self.connected == False:
             self.logger.error("++++ Could not connect with Lionchief...")
@@ -48,7 +49,7 @@ class LionChief(object):
                 checksum -= v
             while checksum < 0:
                 checksum += 256
-            values.insert(0,0)
+            values.insert(0, 0)
             values.append(checksum)
             self._blue_connection.char_write(0x25, bytes(values), True)
             return True
@@ -137,6 +138,7 @@ class LionChief(object):
         self._send_cmd([0x44, 0x01, 0x0e, PITCHES[pitch]])  
 
     def close(self, max_retries: int = 5) -> None:
+        # TODO: Not working, figure out way to kill all threads to reconnect
         # Attempt to close the bluetooth connection
         i = 0
         while self.connected and i < max_retries:
