@@ -7,11 +7,10 @@ from collections import OrderedDict
 from python.utils import (
 	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
-	construct_from_cfg, custom_pinout, api_return_dict, convert_csv_tuples
+	construct_from_cfg, custom_pinout, api_return_dict, convert_csv_tuples,
+        ios_return_dict
 )
 from python.train_switch import CLS_MAP
-from python.lionchief import LionChief
-# from python.bluetooth import show_all_devices
 
 
 ########################################################################
@@ -268,15 +267,25 @@ app.add_url_rule('/devices/<string:pins>', view_func=device_view, methods=['GET'
 app.add_url_rule('/devices/<string:pins>/<string:device_type>', view_func=device_view, methods=['POST',])
 app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view, methods=['PUT',])
 
-@app.route('/devices/save', methods=['POST',])
-def save_json():
+
+########################################################################
+# iOS API (JSON return types)
+########################################################################
+DEVICE_TYPES = ['Relay', 'Servo']
+
+@app.route('/devices/get')
+def get() -> dict:
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
+@app.route('/devices/save')
+def save_json() -> dict:
 	global devices
 	message = save_cfg(devices)
 	app.logger.info(f'++++ saved devices: {devices}')
-	return api_return_dict(devices)
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-@app.route('/devices/load', methods=['POST',])
-def load_json():
+@app.route('/devices/load')
+def load_json() -> dict:
 	global devices
 	global pin_pool
 	cfg, message = load_cfg(PICKLE_PATH)
@@ -285,10 +294,10 @@ def load_json():
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
 		app.logger.info(f'++++ loaded devices: {devices}')
 		pin_pool = update_pin_pool(devices)
-	return api_return_dict(devices)
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 @app.route('/devices/toggle/<int:device>')
-def toggle(device: int):
+def toggle_index(device: int) -> dict:
 	"""Toggle the state of a device, or set to 'straight' by default."""
 	global devices
 	device -= 1  # user will see devices as 1-indexed, convert to 0-indexed
@@ -298,32 +307,44 @@ def toggle(device: int):
 		devices[str(pins)].action('turn')
 	else:
 		devices[str(pins)].action('straight')
-	return api_return_dict(devices)
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-@app.route('/train/start')
-def start_train():
-	global ble_devices
-	if 'chief' not in ble_devices:
-		# init one time
-		ble_devices['chief'] = LionChief(
-			"34:14:B5:3E:A4:71", app.logger
-		)
-		ble_devices['chief'].connect()
-		ble_devices['chief'].horn_seq(' ')
-	if ble_devices['chief'].connected:
-		ble_devices['chief'].ramp(9)
-		ble_devices['chief'].horn_seq(' .  . ')
-		ble_devices['chief'].speak(1)
-	return {'connected': ble_devices['chief'].connected}
+@app.route('/devices/toggle/pins/<string:pins>')
+def toggle_pins(pins: str) -> dict:
+	"""Toggle the state of a device, or set to 'straight' by default."""
+	global devices
+	pins = convert_csv_tuples(pins)
+	if devices[str(pins)].state == 'straight':
+		devices[str(pins)].action('turn')
+	else:
+		devices[str(pins)].action('straight')
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-@app.route('/train/stop')
-def stop_train():
-	global ble_devices
-	if 'chief' in ble_devices:
-		if ble_devices['chief'].connected:
-			ble_devices['chief'].ramp(0)
-		return {'connected': ble_devices['chief'].connected}
-	return {'connected': False}
+@app.route('/devices/delete/<string:pins>')
+def delete(pins: str) -> dict:
+	"""Deletes a device."""
+	pins = convert_csv_tuples(pins)
+	deleted = devices.pop(str(pins), None)
+	if deleted:
+		deleted.close()
+		# add the pins back into the pool
+		[pin_pool.add(p) for p in deleted.pin_list]
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
+@app.route('/devices/post/<string:pins>/<string:device_type>')
+def post(pins: str, device_type: str) -> dict:
+	"""Adds a new device."""
+	device_type = CLS_MAP.get(device_type, None)
+	# device type must be legal
+	if device_type:
+		pins = convert_csv_tuples(pins)
+		# pins must be available and not the same
+		if all([p in pin_pool for p in pins]) and len(set(pins))==len(pins):
+			added = device_type(pin=pins, logger=app.logger)
+			devices.update({str(pins): added})  # add to global container
+			[pin_pool.remove(p) for p in added.pin_list]  # remove availability
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 from python import bluetooth
+# import bluetooth
 import time
 
 PITCHES = [0xfe, 0xff, 0, 1, 2]
@@ -21,29 +22,21 @@ class LionChief(object):
 
     @property
     def connected(self) -> bool:
-        if self._blue_connection: return self._blue_connection._connected
-        return False
+        return self._blue_connection._con.isalive()
 
     def connect(self, max_retries: int = 5) -> None:
         """Connects to a LionChief with a set number of retries."""
         self.logger.info(f"++++ Connecting LionChief @ {self._mac_address}...")
-        i = 0
-        while self.connected == False and i < max_retries:
-            try:
-                self._blue_connection.connect()
-            except Exception as e:
-                self.logger.error(
-                    f"++++ Error while connecting ({i + 1} of {max_retries}): \n"
-                    f"{e}"
-                )
-            i += 1
-
-        if self.connected == False:
-            self.logger.error("++++ Could not connect with Lionchief...")
+        try:
+            self._blue_connection.connect()
+            self.logger.info(f"++++ Running BLE on pid: {self._blue_connection._con.pid}")
+        except Exception as e:
+            self.logger.error(f"++++ Error while connecting ({e}")
+            self.close()
 
     def _send_cmd(self, values: list) -> bool:
         """Core send command,only functions when connected. Returns success boolean."""
-        if self.connected:
+        try:
             checksum = 256
             for v in values:
                 checksum -= v
@@ -53,7 +46,8 @@ class LionChief(object):
             values.append(checksum)
             self._blue_connection.char_write(0x25, bytes(values), True)
             return True
-        return False
+        except Exception:
+            return False
 
     def _set_speed(self, speed: int) -> None:
         if self._send_cmd([0x45, speed]):
@@ -152,17 +146,29 @@ class LionChief(object):
     def __del__(self):
         self.close()
 
+# @app.route('/train/start')
+# def start_train():
+# 	global ble_devices
+# 	if 'chief' not in ble_devices:
+# 		ble_devices['chief'] = LionChief(
+# 			"34:14:B5:3E:A4:71", app.logger
+# 		)
+# 	ble_devices['chief'].connect()
+# 	ble_devices['chief'].horn_seq(' ')
+# 	ble_devices['chief'].ramp(9)
+# 	ble_devices['chief'].horn_seq(' .  . ')
+# 	ble_devices['chief'].speak(1)
+# 	return {'connected': ble_devices['chief'].connected}
 
-# if __name__ == "__main__":
-#     logging.getLogger().setLevel(logging.INFO)
-#     chief = LionChief("34:14:B5:3E:A4:71", logging)
-#     chief.connect()
-#     time.sleep(1)
-#     chief.ramp(10)
-#     chief.horn_seq(' . . ')
-#     time.sleep(8)
-#     chief.speak()
-#     time.sleep(8)
-#     chief.ramp(0)
-#     chief.horn_seq(' . ')
-#     chief.close()
+# @app.route('/train/stop')
+# def stop_train():
+# 	global ble_devices
+# 	res = {
+# 		'connected': False,
+# 		'ramped' : False
+# 	}
+# 	if 'chief' in ble_devices:
+# 		if ble_devices['chief'].connected: 
+# 			ble_devices['chief'].ramp(0)
+# 			res['ramped'] = True
+# 	return res

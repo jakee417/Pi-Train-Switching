@@ -187,8 +187,10 @@ class BTLEDevice(object):
                 if not self._con.isalive(): break
                 time.sleep(0.01)
 
-            self._con.close()  # make sure gatttool is dead
-            self._connected = False
+            if self._con.terminate(force=True):
+                self._connected = False
+            else:
+                self._connected = True
 
     def subscribe(self, handle, callback=None, type_=0):
         """Subscribes to notification/indiciatons from a characteristic.
