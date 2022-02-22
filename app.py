@@ -2,6 +2,8 @@
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
 from flask import Flask, render_template, request
 from flask.views import MethodView
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address 
 from collections import OrderedDict
 
 from python.utils import (
@@ -18,6 +20,12 @@ from python.train_switch import CLS_MAP
 ########################################################################
 check_working_directory()
 app = Flask(__name__)
+limiter = Limiter(
+	app,
+	key_func=get_remote_address,
+	default_limits=[]
+)
+LOAD_RATE = "1/5seconds"
 setup_logging()
 
 # setup ble devices
@@ -73,6 +81,7 @@ def save():
 	)
 
 @app.route('/load/')
+@limiter.limit(LOAD_RATE)
 def load():
 	global devices
 	global pin_pool
@@ -84,7 +93,7 @@ def load():
 				devices=devices,
 				message=message,
 				pin_pool=sort_pool(pin_pool)
-			) 
+			)
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
 		app.logger.info(f'++++ loaded devices: {devices}')
@@ -171,7 +180,7 @@ def config_load():
 		devices=devices,
 		error = error,
 		pin_pool=sort_pool(pin_pool)
-	)	
+	)
 
 @app.route('/config/delete/<string:pins>', methods = ['POST',])
 def config_delete(pins: str):
@@ -271,7 +280,7 @@ app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view
 ########################################################################
 # iOS API (JSON return types)
 ########################################################################
-DEVICE_TYPES = ['Relay', 'Servo']
+DEVICE_TYPES = ['Relay', 'Servo', 'Spur']
 
 @app.route('/devices/get')
 def get() -> dict:
@@ -285,6 +294,7 @@ def save_json() -> dict:
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 @app.route('/devices/load')
+@limiter.limit(LOAD_RATE)
 def load_json() -> dict:
 	global devices
 	global pin_pool
@@ -345,6 +355,20 @@ def post(pins: str, device_type: str) -> dict:
 			[pin_pool.remove(p) for p in added.pin_list]  # remove availability
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
+
+@app.route('/devices/shuffle/<int:start>/<int:finish>')
+def devices_shuffle(start: int, finish: int):
+	global devices
+	assert start >= 0 and start < len(devices) and finish >= 0 and finish <= len(devices)
+	if finish != 0 and finish != len(devices) and start < finish:
+		finish -= 1
+	curr_index = [i for i, (k, v) in enumerate(devices.items())]
+	current_order = list(devices.keys())
+	app.logger.info(f"++++ Current Order: {current_order}")
+	current_order.insert(finish, current_order.pop(start))
+	app.logger.info(f"++++ New Order: {current_order}")
+	devices = OrderedDict((k, devices[k]) for k in current_order)
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 
 if __name__ == '__main__':

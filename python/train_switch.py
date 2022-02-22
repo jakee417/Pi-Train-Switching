@@ -1,8 +1,10 @@
 """Train switch classes"""
-
 import time
 from abc import abstractmethod
 from typing import Union, Tuple
+from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero import DigitalOutputDevice
+from gpiozero import AngularServo
 
 
 PULSE = 50  # default pulse value, 50Hz
@@ -70,7 +72,7 @@ class BaseTrainSwitch:
 
     def to_json(self) -> dict:
         """Converts an object to a seralized representation.
-        
+
         Returns:
             Serialized reprsentation including:
                 - pin
@@ -177,8 +179,6 @@ class ServoTrainSwitch(BaseTrainSwitch):
             and cannot be mixed with other pin factories:
             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
         """
-        from gpiozero.pins.pigpio import PiGPIOFactory
-        from gpiozero import AngularServo
         super(ServoTrainSwitch, self).__init__(**kwargs)
 
         # gpiozero API expects "BOARD" in front of the pin #
@@ -221,9 +221,9 @@ class ServoTrainSwitch(BaseTrainSwitch):
         self.servo.close()
 
 class RelayTrainSwitch(BaseTrainSwitch):
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, active_high: bool = False, initial_value: bool = False, **kwargs) -> None:
         """ Relay switch wrapping the gpiozero class for remote train switches.
-        
+
         References:
             https://www.electronicshub.org/control-a-relay-using-raspberry-pi/
 
@@ -232,13 +232,10 @@ class RelayTrainSwitch(BaseTrainSwitch):
             `gpio.zero.pins.pigpio.PiGPIOFactory`
             and cannot be mixed with other pin factories:
             https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
-        
         """
-        from gpiozero.pins.pigpio import PiGPIOFactory
-        from gpiozero import DigitalOutputDevice
         super(RelayTrainSwitch, self).__init__(**kwargs)
         self.__name__ = 'Relay Train Switch'
-        
+
         if not isinstance(self.pin, tuple):
             raise ValueError(f"Expecting multiple pins. Found {self.pin}")
 
@@ -249,14 +246,14 @@ class RelayTrainSwitch(BaseTrainSwitch):
         # We initially set to False.
         self.yg_relay = DigitalOutputDevice(
             pin="BOARD" + str(self.pin[0]),
-            active_high=False,
-            initial_value=False,
+            active_high=active_high,
+            initial_value=initial_value,
             pin_factory=PiGPIOFactory()
         )
         self.br_relay = DigitalOutputDevice(
             pin="BOARD" + str(self.pin[1]),
-            active_high=False,
-            initial_value=False,
+            active_high=active_high,
+            initial_value=initial_value,
             pin_factory=PiGPIOFactory()
         )
 
@@ -275,7 +272,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
 
         if isinstance(conf, type(None)):
             raise ValueError(
-                "Invalid command to train switch." + 
+                "Invalid command to train switch." +
                 f"\n Found action: {action}"
             )
 
@@ -304,9 +301,18 @@ class RelayTrainSwitch(BaseTrainSwitch):
         self.yg_relay.close()
         self.br_relay.close()
 
+
+class SpurTrainSwitch(RelayTrainSwitch):
+	"""Extended version of Relay Train Switch but with active_high set to True."""
+	def __init__(self, **kwargs) -> None:
+        	super(SpurTrainSwitch, self).__init__(active_high=True, **kwargs)
+        	self.__name__ = 'Spur Train Switch'
+
 CLS_MAP = {
 	'relay': RelayTrainSwitch,
 	'servo': ServoTrainSwitch,
 	'Relay Train Switch': RelayTrainSwitch,
-	'Servo Train Switch': ServoTrainSwitch
+	'Servo Train Switch': ServoTrainSwitch,
+	'spur': SpurTrainSwitch,
+	'Spur Train Switch': SpurTrainSwitch
 }
