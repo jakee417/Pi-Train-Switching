@@ -2,8 +2,6 @@
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
 from flask import Flask, render_template, request
 from flask.views import MethodView
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address 
 from collections import OrderedDict
 
 from python.utils import (
@@ -20,16 +18,7 @@ from python.train_switch import CLS_MAP
 ########################################################################
 check_working_directory()
 app = Flask(__name__)
-limiter = Limiter(
-	app,
-	key_func=get_remote_address,
-	default_limits=[]
-)
-LOAD_RATE = "1/5seconds"
 setup_logging()
-
-# setup ble devices
-ble_devices = {}
 
 # container for holding our devices - load or initialize
 cfg, _ = load_cfg(PICKLE_PATH)
@@ -56,7 +45,6 @@ def log():
 	return render_template(
 		'log.html', 
 		log=f"\n {read_logs()}",
-		# ble_log=f"\n {show_all_devices()}"
 	)
 
 # @app.route('/about/')
@@ -81,7 +69,6 @@ def save():
 	)
 
 @app.route('/load/')
-@limiter.limit(LOAD_RATE)
 def load():
 	global devices
 	global pin_pool
@@ -158,9 +145,6 @@ def config_load():
 			error=error,
 			pin_pool=sort_pool(pin_pool)
 		)
-
-	# unpack if necessary
-	pins = pins[0] if len(pins) == 1 else tuple(pins)
 
 	# Attempt device construction
 	try:
@@ -294,7 +278,6 @@ def save_json() -> dict:
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 @app.route('/devices/load')
-@limiter.limit(LOAD_RATE)
 def load_json() -> dict:
 	global devices
 	global pin_pool
