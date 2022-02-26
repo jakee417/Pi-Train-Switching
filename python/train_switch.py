@@ -10,11 +10,12 @@ from gpiozero import AngularServo
 PULSE = 50  # default pulse value, 50Hz
 SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 BLINK = 0.25 # default time to wait between blinking
+PIN_FACTORY = PiGPIOFactory()
 
 class BaseTrainSwitch:
     def __init__(
         self,
-        pin: Union[int, Tuple[int, int]],
+        pin: Tuple[int],
         logger: object = None) -> None:
         """ Abstract base class for a train switch.
 
@@ -25,8 +26,7 @@ class BaseTrainSwitch:
             logger: logging object passed from Flask server.
         """
         self.__name__ = 'Base Train Switch'
-        if isinstance(pin, tuple):
-            pin = tuple(sorted(pin))  # always sort the pins
+        pin = tuple(sorted(pin))  # always sort the pins
         self.__pin = pin
         self.__state = None
         self.logger = logger
@@ -44,18 +44,12 @@ class BaseTrainSwitch:
     @property
     def pin_list(self) -> list:
         """Returns a list of used pin(s)"""
-        if isinstance(self.__pin, int):
-            return [self.__pin]
-        else:
-            return list(self.__pin)
+        return list(self.__pin)
 
     @property
     def pin_string(self) -> str:
         """Returns a csv seperated string of pin(s)"""
-        if isinstance(self.__pin, int):
-            return str(self.__pin)
-        else:
-            return ','.join(str(s) for s in self.__pin)
+        return ','.join(str(s) for s in self.__pin)
 
 
     @property
@@ -150,7 +144,7 @@ class BaseTrainSwitch:
     def close(self) -> None:
         """Close a connection with a switch."""
         self.__del__()
-        
+
         if self.logger:
             self.logger.info(f"++++ {self} is closed...")
 
@@ -183,7 +177,8 @@ class ServoTrainSwitch(BaseTrainSwitch):
 
         # gpiozero API expects "BOARD" in front of the pin #
         self.__name__ = 'Servo Train Switch'
-        self.pin_name = "BOARD" + str(self.pin)
+        if len(self.pin) != 1: raise ValueError(f"Expecting two pins. Found {self.pin}")
+        self.pin_name = "BOARD" + str(self.pin[0])
         self.min_angle = min_angle
         self.max_angle = max_angle
         self.initial_angle = initial_angle
@@ -206,7 +201,7 @@ class ServoTrainSwitch(BaseTrainSwitch):
             frame_width=1/PULSE,  # 1/50Hz corresponds to 20/1000s default
             min_pulse_width=4/10000,  # corresponds to 2% duty cycle
             max_pulse_width=24/10000,  # correponds to 12% duty cycle
-            pin_factory=PiGPIOFactory()
+            pin_factory=PIN_FACTORY
         )
 
         if self.logger:
@@ -248,13 +243,13 @@ class RelayTrainSwitch(BaseTrainSwitch):
             pin="BOARD" + str(self.pin[0]),
             active_high=active_high,
             initial_value=initial_value,
-            pin_factory=PiGPIOFactory()
+            pin_factory=PIN_FACTORY
         )
         self.br_relay = DigitalOutputDevice(
             pin="BOARD" + str(self.pin[1]),
             active_high=active_high,
             initial_value=initial_value,
-            pin_factory=PiGPIOFactory()
+            pin_factory=PIN_FACTORY
         )
 
         if self.logger:

@@ -61,7 +61,7 @@ GPIO_PINS = set(
         21, 22,
         23, 24,
             26,
-        27, 28,
+
         29,
         31, 32,
         33, 
@@ -215,4 +215,4 @@ def convert_csv_tuples(inputs: str) -> Union[int, tuple]:
         inputs = inputs.split(',')
         inputs = [int(input) for input in inputs]
         inputs.sort()
-        return inputs[0] if len(inputs) == 1 else tuple(inputs)
+        return tuple(inputs)
