@@ -6,13 +6,17 @@ import subprocess
 import pickle
 import io
 import sys
-from typing import Union, Tuple, Optional
+from typing import Union, Tuple, Optional, List
 from collections import OrderedDict
 
 from python.train_switch import CLS_MAP
 
 LOG_FILE = 'server.log'
-PICKLE_PATH = './cfg.pkl'
+PICKLE_PATH = './profiles/'
+
+DEFAULT_PATH = os.path.join(
+	PICKLE_PATH, 'cfg.pkl'
+)
 WORKING_DIRECTORY = os.path.join(
     '/', 'home', getpass.getuser(), 'Pi-Train-Switching'
 )
@@ -134,17 +138,18 @@ def ios_return_dict(devices: OrderedDict, pin_pool: list, device_types: list) ->
     return {
         "devices": list(devices.values()),
         "pin_pool": pin_pool,
-        "device_types": device_types
+        "device_types": device_types,
+	"profiles": get_all_profiles()
     }
 
 
-def save_cfg(devices: OrderedDict) -> str:
+def save_cfg(devices: OrderedDict, name: str = DEFAULT_PATH) -> str:
     """Save and return a serialized message."""
     message = None
     try:
         # serialize a cfg.
         cfg = devices_to_dict(devices)
-        pickle.dump(cfg, open(PICKLE_PATH, 'wb'))
+        pickle.dump(cfg, open(name, 'wb'))
         message = "Saved Configuration."
     except Exception as e:
         message = e
@@ -173,6 +178,18 @@ def load_cfg(path: str) -> Tuple[Optional[OrderedDict], Optional[str]]:
         cfg = pickle.load(open(path, 'rb'))
         message = "Loaded file."
     return cfg, message
+
+def remove_cfg(path: str) -> Optional[str]:
+    """Remove a cfg from a path. Return string message."""  
+    message = None
+    if not os.path.exists(path):
+        message = "No configuration to remove."
+    else:
+        # remove a configuration
+        os.remove(path)
+        message = "Removed file."
+    return message
+
 
 def close_devices(devices: OrderedDict) -> None:
     """Close all connections in a dictionary of devices."""
@@ -216,3 +233,10 @@ def convert_csv_tuples(inputs: str) -> Union[int, tuple]:
         inputs = [int(input) for input in inputs]
         inputs.sort()
         return tuple(inputs)
+
+def get_all_profiles() -> List[str]:
+	"""Gets all of the profile names without file extension."""
+	profiles = os.listdir(PICKLE_PATH)
+	profiles = [i.split('.')[0] for i in profiles]
+	profiles.sort()
+	return profiles

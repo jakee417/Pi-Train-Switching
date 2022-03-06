@@ -3,12 +3,13 @@
 from flask import Flask, render_template, request
 from flask.views import MethodView
 from collections import OrderedDict
+import os
 
 from python.utils import (
-	setup_logging, read_logs, check_working_directory, PICKLE_PATH,
+	setup_logging, read_logs, check_working_directory, PICKLE_PATH, DEFAULT_PATH,
 	GPIO_PINS, sort_pool, save_cfg, load_cfg, close_devices, update_pin_pool,
 	construct_from_cfg, custom_pinout, api_return_dict, convert_csv_tuples,
-        ios_return_dict
+        ios_return_dict, remove_cfg
 )
 from python.train_switch import CLS_MAP
 
@@ -21,13 +22,8 @@ app = Flask(__name__)
 setup_logging()
 
 # container for holding our devices - load or initialize
-cfg, _ = load_cfg(PICKLE_PATH)
-if cfg:
-	devices = construct_from_cfg(cfg, app.logger)
-	pin_pool = update_pin_pool(devices)
-else:
-	devices = OrderedDict({})
-	pin_pool = GPIO_PINS.copy()
+devices = OrderedDict({})
+pin_pool = GPIO_PINS.copy()
 
 ########################################################################
 # HTML return methods
@@ -47,15 +43,6 @@ def log():
 		log=f"\n {read_logs()}",
 	)
 
-# @app.route('/about/')
-# def about():
-# 	return render_template('about.html')
-
-# For latency testing purposes
-# @app.route('/beast/')
-# def beast():
-# 	return render_template('beast.html')
-
 @app.route('/save/')
 def save():
 	global devices
@@ -73,7 +60,7 @@ def load():
 	global devices
 	global pin_pool
 	try:
-		cfg, message = load_cfg(PICKLE_PATH)
+		cfg, message = load_cfg(DEFAULT_PATH)
 		if not cfg:
 			return render_template(
 				'config.html',
@@ -270,24 +257,34 @@ DEVICE_TYPES = ['Relay', 'Servo', 'Spur']
 def get() -> dict:
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-@app.route('/devices/save')
-def save_json() -> dict:
+@app.route('/devices/save/<string:name>')
+def save_json(name: str) -> dict:
 	global devices
-	message = save_cfg(devices)
-	app.logger.info(f'++++ saved devices: {devices}')
+	path = os.path.join(PICKLE_PATH, name.strip() + '.pkl')
+	message = save_cfg(devices, path)
+	app.logger.info(f'++++ saved devices: {devices} as {path}')
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-@app.route('/devices/load')
-def load_json() -> dict:
+@app.route('/devices/load/<string:name>')
+def load_json(name: str) -> dict:
 	global devices
 	global pin_pool
-	cfg, message = load_cfg(PICKLE_PATH)
+	path = os.path.join(PICKLE_PATH, name + '.pkl')
+	cfg, message = load_cfg(path)
 	if cfg:
 		close_devices(devices)  # close out old devices
 		devices = construct_from_cfg(cfg, app.logger)  # start new devices
 		app.logger.info(f'++++ loaded devices: {devices}')
 		pin_pool = update_pin_pool(devices)
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
+@app.route('/devices/remove/<string:name>')
+def remove_json(name: str) -> dict:
+	path = os.path.join(PICKLE_PATH, name + '.pkl')
+	message = remove_cfg(path)
+	app.logger.info(f'++++ {message}')
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
 
 @app.route('/devices/toggle/<int:device>')
 def toggle_index(device: int) -> dict:
@@ -301,6 +298,17 @@ def toggle_index(device: int) -> dict:
 	else:
 		devices[str(pins)].action('straight')
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
+@app.route('/devices/reset/<int:device>')
+def reset_index(device: int) -> dict:
+	"""Resets the state of a device."""
+	global devices
+	device -= 1  # user will see devices as 1-indexed, convert to 0-indexed
+	order = [k for k, v in devices.items()]  # get ordering of pins
+	pins = order[device]
+	devices[pins].state = None
+	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
+
 
 @app.route('/devices/toggle/pins/<string:pins>')
 def toggle_pins(pins: str) -> dict:
