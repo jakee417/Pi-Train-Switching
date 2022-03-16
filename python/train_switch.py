@@ -1,7 +1,7 @@
 """Train switch classes"""
 import time
 from abc import abstractmethod
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import DigitalOutputDevice
 from gpiozero import AngularServo
@@ -13,6 +13,8 @@ BLINK = 0.25 # default time to wait between blinking
 PIN_FACTORY = PiGPIOFactory()
 
 class BaseTrainSwitch:
+    required_pins = None
+
     def __init__(
         self,
         pin: Tuple[int],
@@ -51,6 +53,9 @@ class BaseTrainSwitch:
         """Returns a csv seperated string of pin(s)"""
         return ','.join(str(s) for s in self.__pin)
 
+    @property
+    def get_required_pins(self) -> int:
+        return self.required_pins
 
     @property
     def state(self) -> str:
@@ -59,7 +64,13 @@ class BaseTrainSwitch:
 
     @state.setter
     def state(self, state: str) -> None:
+        self.custom_state_setter(state)
         self.__state = state
+
+    @abstractmethod
+    def custom_state_setter(self, state: Optional[str]) -> None:
+        """Custom action upon setting the state."""
+        pass
 
     def __repr__(self):
         return f"{self.name} @ Pin : {self.pin}"
@@ -150,6 +161,8 @@ class BaseTrainSwitch:
 
 
 class ServoTrainSwitch(BaseTrainSwitch):
+    required_pins = 1
+
     def __init__(
         self,
         min_angle: float = 100.,
@@ -177,7 +190,8 @@ class ServoTrainSwitch(BaseTrainSwitch):
 
         # gpiozero API expects "BOARD" in front of the pin #
         self.__name__ = 'Servo Train Switch'
-        if len(self.pin) != 1: raise ValueError(f"Expecting two pins. Found {self.pin}")
+        if len(self.pin) != self.get_required_pins: 
+            raise ValueError(f"Expecting two pins. Found {self.pin}")
         self.pin_name = "BOARD" + str(self.pin[0])
         self.min_angle = min_angle
         self.max_angle = max_angle
@@ -207,6 +221,9 @@ class ServoTrainSwitch(BaseTrainSwitch):
         if self.logger:
             self.logger.info(f"++++ {self} is started...")
 
+    def custom_state_setter(self, state: Optional[str]) -> None:
+        pass
+
     def _action(self, action: str) -> object:
         angle = self.action_to_angle(action)
         self.servo.angle = angle
@@ -216,6 +233,8 @@ class ServoTrainSwitch(BaseTrainSwitch):
         self.servo.close()
 
 class RelayTrainSwitch(BaseTrainSwitch):
+    required_pins = 2
+
     def __init__(self, active_high: bool = False, initial_value: bool = False, **kwargs) -> None:
         """ Relay switch wrapping the gpiozero class for remote train switches.
 
@@ -234,7 +253,7 @@ class RelayTrainSwitch(BaseTrainSwitch):
         if not isinstance(self.pin, tuple):
             raise ValueError(f"Expecting multiple pins. Found {self.pin}")
 
-        if len(self.pin) != 2:
+        if len(self.pin) != self.get_required_pins:
             raise ValueError(f"Expecting two pins. Found {self.pin}")
 
         # when active_high=False, on() seems to pass voltage and off() seems to pass no voltage.
@@ -254,6 +273,11 @@ class RelayTrainSwitch(BaseTrainSwitch):
 
         if self.logger:
             self.logger.info(f"++++ {self} is started...")
+
+    def custom_state_setter(self, state: Optional[str]) -> None:
+        if not state:
+            self.br_relay.off()
+            self.yg_relay.off()
 
     @staticmethod
     def action_to_conf(action: str):
@@ -298,16 +322,39 @@ class RelayTrainSwitch(BaseTrainSwitch):
 
 
 class SpurTrainSwitch(RelayTrainSwitch):
-	"""Extended version of Relay Train Switch but with active_high set to True."""
-	def __init__(self, **kwargs) -> None:
-        	super(SpurTrainSwitch, self).__init__(active_high=True, **kwargs)
-        	self.__name__ = 'Spur Train Switch'
+    """Extension of Relay Switch that will optionally depower the track."""
+    def __init__(self, active_high: bool = False, **kwargs) -> None:
+        super(SpurTrainSwitch, self).__init__(active_high=active_high, **kwargs)
+        self.__name__ = 'Spur Train Switch'
+    
+    def _action(self, action: str) -> object:
+        # leave the pins on in an alternating fashion
+        conf = self.action_to_conf(action)
+
+        if conf == 'br':
+            self.yg_relay.off()
+            self.br_relay.on()
+
+        if conf == 'yg':
+            self.br_relay.off()
+            self.yg_relay.on()
+        return conf
+
+
+class InvertedSpurTrainSwitch(SpurTrainSwitch):
+    """Extension of Spur Train Switch but with inverted active_high."""
+    def __init__(self, **kwargs) -> None:
+        super(InvertedSpurTrainSwitch, self).__init__(active_high=True, **kwargs)
+        self.__name__ = 'Spur(i) Train Switch'
+
 
 CLS_MAP = {
 	'relay': RelayTrainSwitch,
 	'servo': ServoTrainSwitch,
-	'Relay Train Switch': RelayTrainSwitch,
-	'Servo Train Switch': ServoTrainSwitch,
 	'spur': SpurTrainSwitch,
-	'Spur Train Switch': SpurTrainSwitch
+    'spuri': InvertedSpurTrainSwitch,
+    'Relay Train Switch': RelayTrainSwitch,
+	'Servo Train Switch': ServoTrainSwitch,
+	'Spur Train Switch': SpurTrainSwitch,
+    'Spur(i) Train Switch': InvertedSpurTrainSwitch
 }

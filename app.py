@@ -251,7 +251,14 @@ app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view
 ########################################################################
 # iOS API (JSON return types)
 ########################################################################
-DEVICE_TYPES = ['Relay', 'Servo', 'Spur']
+DEVICE_TYPES = {
+	k: {
+		"requirement": v.required_pins
+	}
+	for k, v in CLS_MAP.items()
+}
+
+DEVICE_TYPES = list(CLS_MAP.keys())
 
 @app.route('/devices/get')
 def get() -> dict:

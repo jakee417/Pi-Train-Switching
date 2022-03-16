@@ -6,7 +6,7 @@ import subprocess
 import pickle
 import io
 import sys
-from typing import Union, Tuple, Optional, List
+from typing import Union, Tuple, Optional, List, Dict
 from collections import OrderedDict
 
 from python.train_switch import CLS_MAP
@@ -132,16 +132,15 @@ def api_return_dict(devices: OrderedDict) -> dict:
         "devices": list(devices.values())
     }
 
-def ios_return_dict(devices: OrderedDict, pin_pool: list, device_types: list) -> dict:
+def ios_return_dict(devices: OrderedDict, pin_pool: list, device_types: List[str]) -> dict:
     """Returns a json-returnable dict for an iOS call."""
     devices = devices_to_dict(devices)
     return {
         "devices": list(devices.values()),
         "pin_pool": pin_pool,
-        "device_types": device_types,
-	"profiles": get_all_profiles()
+        #"device_types": device_types,
+	    "profiles": get_all_profiles()
     }
-
 
 def save_cfg(devices: OrderedDict, name: str = DEFAULT_PATH) -> str:
     """Save and return a serialized message."""
