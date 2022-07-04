@@ -292,18 +292,19 @@ def remove_json(name: str) -> dict:
 	app.logger.info(f'++++ {message}')
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
-
 @app.route('/devices/toggle/<int:device>')
 def toggle_index(device: int) -> dict:
-	"""Toggle the state of a device, or set to 'straight' by default."""
+	"""Toggle the state of a device, or set to 'self.on_state' by default."""
 	global devices
 	device -= 1  # user will see devices as 1-indexed, convert to 0-indexed
 	order = [k for k, v in devices.items()]  # get ordering of pins
 	pins = order[device]
-	if devices[pins].state == 'straight':
-		devices[str(pins)].action('turn')
+	on_state = devices[str(pins)].on_state
+	off_state = devices[str(pins)].off_state
+	if devices[pins].state == on_state:
+		devices[str(pins)].action(off_state)
 	else:
-		devices[str(pins)].action('straight')
+		devices[str(pins)].action(on_state)
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 @app.route('/devices/reset/<int:device>')
@@ -319,13 +320,15 @@ def reset_index(device: int) -> dict:
 
 @app.route('/devices/toggle/pins/<string:pins>')
 def toggle_pins(pins: str) -> dict:
-	"""Toggle the state of a device, or set to 'straight' by default."""
+	"""Toggle the state of a device, or set to 'self.on_state' by default."""
 	global devices
 	pins = convert_csv_tuples(pins)
-	if devices[str(pins)].state == 'straight':
-		devices[str(pins)].action('turn')
+	on_state = devices[str(pins)].on_state
+	off_state = devices[str(pins)].off_state
+	if devices[pins].state == on_state:
+		devices[str(pins)].action(off_state)
 	else:
-		devices[str(pins)].action('straight')
+		devices[str(pins)].action(on_state)
 	return ios_return_dict(devices, sort_pool(pin_pool), DEVICE_TYPES)
 
 @app.route('/devices/delete/<string:pins>')

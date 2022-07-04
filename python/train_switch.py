@@ -12,14 +12,16 @@ SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 BLINK = 0.25 # default time to wait between blinking
 PIN_FACTORY = PiGPIOFactory()
 
-class BaseTrainSwitch:
-    required_pins = None
+class BinaryDevice:
+    required_pins = None # Number of pins required (i.e. 2).
+    on_state = None # Since only two states, this is the "on" state.
+    off_state = None # ... and the "off" state.
 
     def __init__(
         self,
         pin: Tuple[int],
         logger: object = None) -> None:
-        """ Abstract base class for a train switch.
+        """ Abstract base class for any device with two states.
 
         Args:
             pin: Unique number for a gpio pin on a raspberry pi.
@@ -119,7 +121,7 @@ class BaseTrainSwitch:
     @abstractmethod
     def _action(self, action: str) -> object:
         pass
-    
+
     def action(self, action: str) -> None:
         """ Execute an action on a train switch.
 
@@ -128,7 +130,7 @@ class BaseTrainSwitch:
         state of the train switch.
 
         Args:
-            action: One of `straight` or `turn`
+            action: One of [`straight`, `on`] or [`turn`, `off`]
         """
         if self.state == action:
             self.log(self.state, action, 'skipped')
@@ -160,8 +162,10 @@ class BaseTrainSwitch:
             self.logger.info(f"++++ {self} is closed...")
 
 
-class ServoTrainSwitch(BaseTrainSwitch):
+class ServoTrainSwitch(BinaryDevice):
     required_pins = 1
+    on_state = 'straight'
+    off_state = 'turn'
 
     def __init__(
         self,
@@ -190,7 +194,7 @@ class ServoTrainSwitch(BaseTrainSwitch):
 
         # gpiozero API expects "BOARD" in front of the pin #
         self.__name__ = 'Servo Train Switch'
-        if len(self.pin) != self.get_required_pins: 
+        if len(self.pin) != self.get_required_pins:
             raise ValueError(f"Expecting two pins. Found {self.pin}")
         self.pin_name = "BOARD" + str(self.pin[0])
         self.min_angle = min_angle
@@ -203,7 +207,7 @@ class ServoTrainSwitch(BaseTrainSwitch):
         # 2% duty cycle = 0°
         # 12% duty cycle = 12°
         # => frame_width (s) = 1 / 50 (Hz) = 0.02 (s)
-        # _min_dc = min_pulse_width / frame_width = 0.02% 
+        # _min_dc = min_pulse_width / frame_width = 0.02%
         # => min_pulse = 4 / 10,000
         # _dc_range = (max_pulse_width - min_pulse_width) / frame_width = 0.12%
         # => max_pulse_width = 24 / 10,000
@@ -232,8 +236,10 @@ class ServoTrainSwitch(BaseTrainSwitch):
     def __del__(self) -> None:
         self.servo.close()
 
-class RelayTrainSwitch(BaseTrainSwitch):
+class RelayTrainSwitch(BinaryDevice):
     required_pins = 2
+    on_state = 'straight'
+    off_state = 'turn'
 
     def __init__(self, active_high: bool = False, initial_value: bool = False, **kwargs) -> None:
         """ Relay switch wrapping the gpiozero class for remote train switches.
@@ -321,12 +327,86 @@ class RelayTrainSwitch(BaseTrainSwitch):
         self.br_relay.close()
 
 
+class OnOff(BinaryDevice):
+    required_pins = 1
+    on_state = 'on'
+    off_state = 'off'
+
+    def __init__(self, active_high: bool = False, initial_value: bool = False, **kwargs) -> None:
+        """ OnOff wrapping the gpiozero class for generic devices.
+
+        References:
+            https://www.electronicshub.org/control-a-relay-using-raspberry-pi/
+
+        Notes:
+            The default pin factory for this device is:
+            `gpio.zero.pins.pigpio.PiGPIOFactory`
+            and cannot be mixed with other pin factories:
+            https://gpiozero.readthedocs.io/en/stable/api_pins.html#changing-the-pin-factory
+        """
+        super(OnOff, self).__init__(**kwargs)
+        self.__name__ = 'On/Off'
+
+        if not isinstance(self.pin, tuple):
+            raise ValueError(f"Expecting one pin. Found {self.pin}")
+
+        if len(self.pin) != self.get_required_pins:
+            raise ValueError(f"Expecting one pin. Found {self.pin}")
+
+        # when active_high=False, on() seems to pass voltage and off() seems to pass no voltage.
+        # We initially set to False.
+        self.relay = DigitalOutputDevice(
+            pin="BOARD" + str(self.pin[0]),
+            active_high=active_high,
+            initial_value=initial_value,
+            pin_factory=PIN_FACTORY
+        )
+
+        if self.logger:
+            self.logger.info(f"++++ {self} is started...")
+
+    def custom_state_setter(self, state: Optional[str]) -> None:
+        if not state:
+            self.relay.off()
+
+    @staticmethod
+    def action_to_conf(action: str):
+        """ Map an action to a relay configuration"""
+        mapping = {
+            'off': 'open',
+            'on': 'close',
+        }
+
+        conf = mapping.get(action, None)
+
+        if isinstance(conf, type(None)):
+            raise ValueError(
+                "Invalid command to on/off device." +
+                f"\n Found action: {action}"
+            )
+
+        return conf
+
+    def _action(self, action: str) -> object:
+        conf = self.action_to_conf(action)
+
+        if conf == 'open':
+            self.relay.off()
+
+        if conf == 'close':
+            self.relay.on()
+        return conf
+
+    def __del__(self) -> None:
+        self.relay.close()
+
+
 class SpurTrainSwitch(RelayTrainSwitch):
     """Extension of Relay Switch that will optionally depower the track."""
     def __init__(self, active_high: bool = False, **kwargs) -> None:
         super(SpurTrainSwitch, self).__init__(active_high=active_high, **kwargs)
         self.__name__ = 'Spur Train Switch'
-    
+
     def _action(self, action: str) -> object:
         # leave the pins on in an alternating fashion
         conf = self.action_to_conf(action)
@@ -356,5 +436,7 @@ CLS_MAP = {
     'Relay Train Switch': RelayTrainSwitch,
 	'Servo Train Switch': ServoTrainSwitch,
 	'Spur Train Switch': SpurTrainSwitch,
-    'Spur(i) Train Switch': InvertedSpurTrainSwitch
+    'Spur(i) Train Switch': InvertedSpurTrainSwitch,
+    'On/Off': OnOff,
+    'onoff': OnOff,
 }
