@@ -445,7 +445,7 @@ CLS_MAP = {
 	'Servo Train Switch': ServoTrainSwitch,
 	'Spur Train Switch': SpurTrainSwitch,
 	'Spur(i) Train Switch': InvertedSpurTrainSwitch,
-	'Relay(i) Train Switch': InvertedRelayTrainSwitch
+	'Relay(i) Train Switch': InvertedRelayTrainSwitch,
     'On/Off': OnOff,
     'onoff': OnOff,
 }
