@@ -348,13 +348,22 @@ class InvertedSpurTrainSwitch(SpurTrainSwitch):
         self.__name__ = 'Spur(i) Train Switch'
 
 
+class InvertedRelayTrainSwitch(RelayTrainSwitch):
+    """Extension of Relay Train Switch but with inverted active_high."""
+    def __init__(self, **kwargs) -> None:
+        super(InvertedRelayTrainSwitch, self).__init__(active_high=True, **kwargs)
+        self.__name__ = 'Relay(i) Train Switch'
+
+
 CLS_MAP = {
 	'relay': RelayTrainSwitch,
 	'servo': ServoTrainSwitch,
 	'spur': SpurTrainSwitch,
-    'spuri': InvertedSpurTrainSwitch,
-    'Relay Train Switch': RelayTrainSwitch,
+	'spuri': InvertedSpurTrainSwitch,
+	'relayi': InvertedRelayTrainSwitch,
+	'Relay Train Switch': RelayTrainSwitch,
 	'Servo Train Switch': ServoTrainSwitch,
 	'Spur Train Switch': SpurTrainSwitch,
-    'Spur(i) Train Switch': InvertedSpurTrainSwitch
+	'Spur(i) Train Switch': InvertedSpurTrainSwitch,
+	'Relay(i) Train Switch': InvertedRelayTrainSwitch
 }

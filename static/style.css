@@ -1,6 +1,7 @@
 body {
-	background-image: url("/static/hip-square.png");
-  	background-repeat: repeat;
+	/* background-image: url("/static/hip-square.png");*/
+	background-color: coral;
+	background-repeat: repeat;
 	color: black;
 	font-size: 100%;
 	font-family: Verdana, sans-serif;
