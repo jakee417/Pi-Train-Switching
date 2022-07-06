@@ -1,0 +1,100 @@
+{% macro total(devices) -%}
+Active Devices: {{ devices.__len__() }}
+{%- endmacro %}
+
+{% macro display(i, s) -%}
+<table>
+    <td>
+        <span class="bolded">{{ i }}</span>
+    </td>
+    <td>
+        <pre><p>{{ s }}</p></pre>
+    </td>
+</table>
+{%- endmacro %}
+
+{% macro active(s) -%}
+<table>
+    <td>
+        <form action="{{ url_for("config_delete", pins=s.pin_string) }}" method="post">
+            <button class="btn" value="delete" name="{{ s.pin }}">
+                <i class="fa fa-close"></i>
+            </button>
+        </form> 
+    </td>
+    <td>
+        <pre>{{ s }}</pre>
+    </td>
+    <td>
+        <form action="{{ url_for("config_shuffle", pins=s.pin_string, direction="up") }}" method="post">
+            <button>
+                <i class="fa fa-chevron-circle-up"></i>
+            </button>
+        </form>
+
+        <form action="{{ url_for("config_shuffle", pins=s.pin_string, direction="down") }}" method="post">
+            <button>
+                <i class="fa fa-chevron-circle-down"></i>
+            </button>
+        </form>
+    </td>
+</table>
+{%- endmacro %}
+
+{% macro config(pin_pool) -%}
+<script>
+function submitForm(){
+    document.getElementById("add").submit();
+}
+</script>
+
+<table>
+    <tr>
+        <td> 
+            <button class="btn" onclick="submitForm()">
+                <i class="fa fa-plus-circle"></i>
+            </button>
+        </td>
+        <td>
+            <form action="{{url_for("config_load")}}" method="post" id='add'>
+                <select name="type">
+                    <option value="relay">Relay</option>
+                    <option value="servo">Servo</option>
+		    <option value="spur">Spur</option>
+                </select>
+        </td>
+        <td>
+            <select name="pin1">
+            <option> </option>
+            {% for p in pin_pool %}
+            <option value={{ p }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+        </td>
+        <td>
+            <select name="pin2">
+            <option> </option>
+            {% for p in pin_pool %}
+            <option value={{ p }}>{{ p }}</option>
+            {% endfor %}
+            </select>
+            </form> 
+        </td>
+    </tr>
+</table>
+{%- endmacro %}
+
+{% macro save_load() -%}
+<table>
+    <td> 
+        <form action="{{url_for("save")}}" method="get">
+            <input type="submit" value="Save">
+        </form>
+    </td>
+    <td>
+        <form action="{{url_for("load")}}" method="get">
+            <input type="submit" value="Load">
+        </form>
+    </td>
+</table>
+{%- endmacro %}

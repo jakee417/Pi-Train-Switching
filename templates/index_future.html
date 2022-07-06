@@ -1,0 +1,25 @@
+{% import 'forms_future.html' as forms %}
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" href='/static/style.css'/>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<body>
+    <a href="{{ url_for('pinout') }}">View Pinout</a>
+    <br>
+    <a href="{{ url_for('log') }}">View Logs</a>
+    <hr />
+    <!-- Loop through all switches and display controls -->
+    {% for key, value in devices.items() %}
+    {{ forms.display(loop.index, value) }}
+    <hr />
+    {% endfor %}
+    </form> 
+</body>
+</html>
