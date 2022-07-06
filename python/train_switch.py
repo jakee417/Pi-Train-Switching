@@ -169,8 +169,8 @@ class ServoTrainSwitch(BinaryDevice):
 
     def __init__(
         self,
-        min_angle: float = 100.,
-        max_angle: float = 180.,
+        min_angle: float = 100.0,
+        max_angle: float = 180.0,
         initial_angle: float = None,
         **kwargs) -> None:
         """ Servo class wrapping the gpiozero class for manual train switches.
@@ -399,6 +399,34 @@ class OnOff(BinaryDevice):
 
     def __del__(self) -> None:
         self.relay.close()
+        
+        
+class Disconnect(OnOff):
+    """Extension of On/Off for Disconnect accessory."""
+    def __init__(self, **kwargs) -> None:
+        super(Disconnect, self).__init__(active_high=False, **kwargs)
+        self.__name__ = "Disconnect"
+        
+        
+class Unloader(OnOff):
+    """Extension of On/Off for Unloader accessory."""
+    def __init__(self, **kwargs) -> None:
+        super(Unloader, self).__init__(active_high=False, **kwargs)
+        self.__name__ = "Unloader"
+        
+        
+class InvertedDisconnect(OnOff):
+    """Extension of On/Off for Disconnect accessory w/ inverted active_high."""
+    def __init__(self, **kwargs) -> None:
+        super(InvertedDisconnect, self).__init__(active_high=True, **kwargs)
+        self.__name__ = "Disconnect(i)"
+        
+        
+class InvertedUnloader(OnOff):
+    """Extension of On/Off for Unloader accessory w/ inverted active_high."""
+    def __init__(self, **kwargs) -> None:
+        super(InvertedUnloader, self).__init__(active_high=True, **kwargs)
+        self.__name__ = "Unloader(i)"
 
 
 class SpurTrainSwitch(RelayTrainSwitch):
@@ -448,4 +476,12 @@ CLS_MAP = {
 	'Relay(i) Train Switch': InvertedRelayTrainSwitch,
     'On/Off': OnOff,
     'onoff': OnOff,
+    'Disconnect': Disconnect,
+    'disconnect': Disconnect,
+    'Unloader': Unloader,
+    'unloader': Unloader,
+    'Disconnect(i)': InvertedDisconnect,
+    'disconnecti': InvertedDisconnect,
+    'Unloader(i)': InvertedUnloader,
+    'unloaderi': InvertedUnloader,
 }

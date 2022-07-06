@@ -27,22 +27,28 @@ pin_pool = GPIO_PINS.copy()
 
 ########################################################################
 # HTML return methods
+# These methods are largely deprecated and have been
+# future proofed against newer versions of the app.
 ########################################################################
+# FUTURE-PROOF
 @app.route('/', methods = ['GET', 'POST'])
 def index():
 	global devices
 	if request.method == 'POST':
+        # DEPRECATED
 		for pin, action in request.form.items():
 			devices[pin].action(action.lower())  # perform action
-	return render_template('index.html', devices=devices)
+	return render_template('index_future.html', devices=devices)
 
+# FUTURE-PROOF
 @app.route('/log/')
 def log():
 	return render_template(
-		'log.html', 
+		'log.html',
 		log=f"\n {read_logs()}",
 	)
 
+# DEPRECATED
 @app.route('/save/')
 def save():
 	global devices
@@ -55,6 +61,7 @@ def save():
 		pin_pool=sort_pool(pin_pool)
 	)
 
+# DEPRECATED
 @app.route('/load/')
 def load():
 	global devices
@@ -81,6 +88,7 @@ def load():
 		pin_pool=sort_pool(pin_pool)
 	)
 
+# DEPRECATED
 @app.route('/config/')
 def config():
 	global devices
@@ -91,14 +99,16 @@ def config():
 		pin_pool=sort_pool(pin_pool)
 		)
 
+# FUTURE-PROOF
 @app.route('/pinout/')
 def pinout():
 	global pin_pool
 	return render_template(
-		'pinout.html',
+		'pinout_future.html',
 		pinout=custom_pinout(pin_pool)
 	)
 
+# DEPRECATED
 @app.route('/config/load', methods = ['POST'])
 def config_load():
 	global devices
@@ -153,6 +163,7 @@ def config_load():
 		pin_pool=sort_pool(pin_pool)
 	)
 
+# DEPRECATED
 @app.route('/config/delete/<string:pins>', methods = ['POST',])
 def config_delete(pins: str):
 	global devices
@@ -168,6 +179,7 @@ def config_delete(pins: str):
 		pin_pool=sort_pool(pin_pool)
 	)
 
+# DEPRECATED
 @app.route('/config/shuffle/<string:pins>/<string:direction>', methods=['POST',])
 def config_shuffle(pins: str, direction: str):
 	global devices
@@ -250,6 +262,7 @@ app.add_url_rule('/devices/<string:pins>/<string:action>', view_func=device_view
 
 ########################################################################
 # iOS API (JSON return types)
+# Backend to "Rail Yard" iOS app
 ########################################################################
 DEVICE_TYPES = {
 	k: {
