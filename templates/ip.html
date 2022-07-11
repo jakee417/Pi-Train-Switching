@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href='/static/style.css' />
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+    <pre>host_ip: {{ host_ip|safe }}</pre>
+    <pre>host_ip: {{ host_port|safe }}</pre>
+    <pre>client_ip: {{ client_ip|safe }}</pre>
+</body>
+</html>

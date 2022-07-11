@@ -14,6 +14,8 @@
     <a href="{{ url_for('pinout') }}">View Pinout</a>
     <br>
     <a href="{{ url_for('log') }}">View Logs</a>
+    <br>
+    <a href="{{ url_for('ip') }}">View IPv4</a>
     <hr />
     <!-- Loop through all switches and display controls -->
     {% for key, value in devices.items() %}

@@ -1,7 +1,8 @@
 """Web server for raspberry pi devices."""
 # Reference: http://mattrichardson.com/Raspberry-Pi-Flask/index.html
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify, request
 from flask.views import MethodView
+
 from collections import OrderedDict
 import os
 
@@ -30,6 +31,30 @@ pin_pool = GPIO_PINS.copy()
 # These methods are largely deprecated and have been
 # future proofed against newer versions of the app.
 ########################################################################
+# FUTURE-PROOF
+@app.route("/ip/", methods=["GET"])
+def ip():
+    return render_template(
+		'ip.html',
+		host_ip=request.host.split(':')[0],
+		client_ip=request.remote_addr,
+		host_port=request.host.split(':')[1]
+	)
+
+# FUTURE-PROOF
+@app.route("/ip/json/", methods=["GET"])
+def ip_json():
+    return (
+		jsonify(
+			{
+				"client_ip": request.remote_addr,
+				"host_ip": request.host.split(':')[0],
+				"host_port": request.host.split(':')[1]
+			}
+		),
+		200
+	)
+
 # FUTURE-PROOF
 @app.route('/', methods = ['GET', 'POST'])
 def index():

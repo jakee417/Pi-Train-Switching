@@ -5,11 +5,13 @@ from typing import Union, Tuple, Optional
 from gpiozero.pins.pigpio import PiGPIOFactory
 from gpiozero import DigitalOutputDevice
 from gpiozero import AngularServo
+from threading import Timer
 
 
 PULSE = 50  # default pulse value, 50Hz
 SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
-BLINK = 0.25 # default time to wait between blinking
+BLINK = 0.25  # default time to wait between blinking
+SAFE_SHUTDOWN = 10.0  # how long to wait before shutting down disconnect 
 PIN_FACTORY = PiGPIOFactory()
 
 class BinaryDevice:
@@ -399,14 +401,52 @@ class OnOff(BinaryDevice):
 
     def __del__(self) -> None:
         self.relay.close()
-        
-        
+
+
 class Disconnect(OnOff):
     """Extension of On/Off for Disconnect accessory."""
-    def __init__(self, **kwargs) -> None:
-        super(Disconnect, self).__init__(active_high=False, **kwargs)
+    def __init__(self, active_high=False, **kwargs) -> None:
+        super(Disconnect, self).__init__(active_high=active_high, **kwargs)
         self.__name__ = "Disconnect"
-        
+        self.safe_stop = None
+
+    def safe_close_relay(self) -> None:
+        # If relay is on, turn it off
+        self.logger.info(
+                f"\n {self}: \n" +
+                f"++++ Background Thread: Checking for shutdown..."
+            )
+        if self.relay.value == 1:
+            self.logger.info(
+                f"\n {self}: \n" +
+                f"++++ Background Thread: auto-shutdown"
+            )
+            self.relay.off()
+            self.state = self.off_state
+        else:
+            self.logger.info(f"\n {self}: \n ++++ Background Thread: no action needed!")
+
+    def _action(self, action: str) -> object:
+        conf = self.action_to_conf(action)
+
+        if conf == 'open':
+            self.relay.off()
+            # If we had a thread waiting to close, cancel it.
+            if self.safe_stop is not None:
+            	self.safe_stop.cancel()
+
+        if conf == 'close':
+            self.relay.on()
+            # Wait for 10 seconds, then turn off.
+            self.safe_stop = Timer(SAFE_SHUTDOWN, self.safe_close_relay)
+            self.safe_stop.start()
+
+        return conf
+
+    def __del__(self) -> None:
+        self.relay.off()
+        super().__del__()
+
         
 class Unloader(OnOff):
     """Extension of On/Off for Unloader accessory."""
@@ -415,7 +455,7 @@ class Unloader(OnOff):
         self.__name__ = "Unloader"
         
         
-class InvertedDisconnect(OnOff):
+class InvertedDisconnect(Disconnect):
     """Extension of On/Off for Disconnect accessory w/ inverted active_high."""
     def __init__(self, **kwargs) -> None:
         super(InvertedDisconnect, self).__init__(active_high=True, **kwargs)
@@ -464,16 +504,16 @@ class InvertedRelayTrainSwitch(RelayTrainSwitch):
 
 
 CLS_MAP = {
-	'relay': RelayTrainSwitch,
-	'servo': ServoTrainSwitch,
-	'spur': SpurTrainSwitch,
-	'spuri': InvertedSpurTrainSwitch,
-	'relayi': InvertedRelayTrainSwitch,
-	'Relay Train Switch': RelayTrainSwitch,
-	'Servo Train Switch': ServoTrainSwitch,
-	'Spur Train Switch': SpurTrainSwitch,
-	'Spur(i) Train Switch': InvertedSpurTrainSwitch,
-	'Relay(i) Train Switch': InvertedRelayTrainSwitch,
+    'relay': RelayTrainSwitch,
+    'servo': ServoTrainSwitch,
+    'spur': SpurTrainSwitch,
+    'spuri': InvertedSpurTrainSwitch,
+    'relayi': InvertedRelayTrainSwitch,
+    'Relay Train Switch': RelayTrainSwitch,
+    'Servo Train Switch': ServoTrainSwitch,
+    'Spur Train Switch': SpurTrainSwitch,
+    'Spur(i) Train Switch': InvertedSpurTrainSwitch,
+    'Relay(i) Train Switch': InvertedRelayTrainSwitch,
     'On/Off': OnOff,
     'onoff': OnOff,
     'Disconnect': Disconnect,
