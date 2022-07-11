@@ -11,7 +11,7 @@ from threading import Timer
 PULSE = 50  # default pulse value, 50Hz
 SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 BLINK = 0.25  # default time to wait between blinking
-SAFE_SHUTDOWN = 3.0  # how long to wait before shutting down disconnect 
+SAFE_SHUTDOWN = 4.0  # how long to wait before shutting down disconnect
 PIN_FACTORY = PiGPIOFactory()
 
 class BinaryDevice:
