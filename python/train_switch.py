@@ -1,8 +1,9 @@
 """Train switch classes"""
 import time
 from abc import abstractmethod
-from typing import Union, Tuple, Optional
+from typing import Tuple, Optional
 from gpiozero.pins.pigpio import PiGPIOFactory
+from gpiozero.pins.mock import MockFactory
 from gpiozero import DigitalOutputDevice
 from gpiozero import AngularServo
 from threading import Timer
@@ -13,6 +14,7 @@ SLEEP = 0.5  # default sleep time to prevent jitter - half seconds
 BLINK = 0.25  # default time to wait between blinking
 SAFE_SHUTDOWN = 4.0  # how long to wait before shutting down disconnect
 PIN_FACTORY = PiGPIOFactory()
+# PIN_FACTORY = MockFactory()
 
 class BinaryDevice:
     required_pins = None # Number of pins required (i.e. 2).
@@ -433,8 +435,8 @@ class Disconnect(OnOff):
             self.relay.off()
             # If we had a thread waiting to close, cancel it.
             if self.safe_stop is not None:
-            	self.safe_stop.cancel()
-
+                self.safe_stop.cancel()
+                
         if conf == 'close':
             self.relay.on()
             # Wait for 10 seconds, then turn off.

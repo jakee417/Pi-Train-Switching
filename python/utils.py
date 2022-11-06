@@ -4,8 +4,6 @@ import os
 import getpass
 import subprocess
 import pickle
-import io
-import sys
 from typing import Union, Tuple, Optional, List, Dict
 from collections import OrderedDict
 
@@ -92,7 +90,7 @@ def check_working_directory() -> None:
     """Ensure cwd is /home/pi/Documents/trains"""
     cwd = os.getcwd()
     if cwd != WORKING_DIRECTORY:
-        raise InvalidCurrentWorkingDirectory(
+        logging.warning(
             "Expected current working directory (cwd) is: \n" +
             f"{WORKING_DIRECTORY} \n" + 
             "Found cwd: \n" +
@@ -234,8 +232,9 @@ def convert_csv_tuples(inputs: str) -> Union[int, tuple]:
         return tuple(inputs)
 
 def get_all_profiles() -> List[str]:
-	"""Gets all of the profile names without file extension."""
-	profiles = os.listdir(PICKLE_PATH)
-	profiles = [i.split('.')[0] for i in profiles]
-	profiles.sort()
-	return profiles
+    """Gets all of the profile names without file extension."""
+    os.makedirs(PICKLE_PATH, exist_ok=True)
+    profiles = os.listdir(PICKLE_PATH)
+    profiles = [i.split('.')[0] for i in profiles]
+    profiles.sort()
+    return profiles

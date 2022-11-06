@@ -18,9 +18,10 @@ from python.train_switch import CLS_MAP
 ########################################################################
 # Setup
 ########################################################################
+setup_logging()
 check_working_directory()
 app = Flask(__name__)
-setup_logging()
+
 
 # container for holding our devices - load or initialize
 devices = OrderedDict({})
@@ -401,7 +402,6 @@ def devices_shuffle(start: int, finish: int):
 	assert start >= 0 and start < len(devices) and finish >= 0 and finish <= len(devices)
 	if finish != 0 and finish != len(devices) and start < finish:
 		finish -= 1
-	curr_index = [i for i, (k, v) in enumerate(devices.items())]
 	current_order = list(devices.keys())
 	app.logger.info(f"++++ Current Order: {current_order}")
 	current_order.insert(finish, current_order.pop(start))
